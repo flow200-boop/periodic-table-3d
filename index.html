@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive 3D Periodic Table of Elements featuring dynamic 3D Bohr atom models, quantum electron cloud visualizations, real-time temperature-based state simulations, and detailed element summaries.">
+  <title>Aether Elements - Interactive 3D Periodic Table</title>
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Import Map for ES Modules CDN Loading -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Cosmic Particle Background -->
+  <div class="space-bg">
+    <div class="stars"></div>
+    <div class="nebula nebula-purple"></div>
+    <div class="nebula nebula-blue"></div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Header Section -->
+    <header>
+      <div class="logo-section">
+        <h1>Aether Elements <span>3D</span></h1>
+        <p>Interactive Cosmic Periodic Table & Atom Simulator</p>
+      </div>
+
+      <!-- Quick Statistics Widgets -->
+      <div class="quick-stats">
+        <div class="stat-item" id="stat-solid">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+          Solid: <strong id="count-solid">0</strong>
+        </div>
+        <div class="stat-item" id="stat-liquid">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"></path></svg>
+          Liquid: <strong id="count-liquid">0</strong>
+        </div>
+        <div class="stat-item" id="stat-gas">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 8l0 4"></path><path d="M12 16l.01 0"></path></svg>
+          Gas: <strong id="count-gas">0</strong>
+        </div>
+        <div class="stat-item" id="stat-synth">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Synthetic: <strong id="count-synth">0</strong>
+        </div>
+      </div>
+    </header>
+
+    <!-- Controls Dashboard (Filters, Search, Temp Slider) -->
+    <section class="controls-dashboard" aria-label="Controls Dashboard">
+      <div class="controls-row-top">
+        
+        <!-- Interactive Search Bar -->
+        <div class="search-box">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" id="search-input" placeholder="Search by name, symbol, or atomic number (e.g., Carbon, Au, 26)..." aria-label="Search elements">
+        </div>
+
+        <!-- State-of-matter Temperature Slider -->
+        <div class="temp-slider-container">
+          <span class="temp-label">Simulate Temp:</span>
+          <div class="temp-slider-wrapper">
+            <input type="range" id="temp-range" min="0" max="6000" value="298" aria-label="Temperature slider in Kelvin">
+            <span class="temp-value" id="temp-val-display">298 K</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filtering Badges -->
+      <div class="category-filters" id="filters-container">
+        <!-- Generated Dynamically via JS for precision -->
+      </div>
+    </section>
+
+    <!-- The Periodic Table Grid Area -->
+    <main class="periodic-table-wrapper" aria-label="Periodic Table of Elements">
+      <div class="periodic-table-grid" id="periodic-table">
+        <!-- Dynamic elements grids will be injected here via Javascript -->
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Detailed Element Drawer (Slides out from right) -->
+  <div class="detail-modal-overlay" id="drawer-overlay"></div>
+  <div class="detail-drawer" id="element-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <div class="drawer-element-symbol-box" id="drawer-sym-box" style="--cat-color: #3b82f6;">H</div>
+        <div class="drawer-title-group">
+          <h2 id="drawer-title">Hydrogen <span>#1</span></h2>
+          <p id="drawer-category">Reactive Nonmetal</p>
+        </div>
+      </div>
+      <button class="close-btn" id="close-drawer-btn" aria-label="Close details">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Drawer Content (Scrollable) -->
+    <div class="drawer-content">
+      
+      <!-- 3D Viewport Panel -->
+      <div class="visualizer-container">
+        <canvas id="canvas3d"></canvas>
+        <div class="visualizer-overlay">
+          <div class="visualizer-controls">
+            <button class="vis-btn active" id="btn-bohr-mode" aria-label="Switch to Bohr model">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+              Bohr
+            </button>
+            <button class="vis-btn" id="btn-cloud-mode" aria-label="Switch to Electron Cloud mode">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12a15.3 15.3 0 0 1 10-4 15.3 15.3 0 0 1 10 4 15.3 15.3 0 0 1-10 4 15.3 15.3 0 0 1-10-4z"></path></svg>
+              Cloud
+            </button>
+            <span style="color: rgba(255,255,255,0.15)">|</span>
+            <button class="vis-btn active" id="btn-toggle-paths" aria-label="Toggle Orbit Paths">
+              Paths
+            </button>
+          </div>
+          <span class="visualizer-hint">Drag to Rotate | Scroll to Zoom</span>
+        </div>
+      </div>
+
+      <!-- Physical Properties Fact Sheets -->
+      <div class="facts-grid">
+        <div class="fact-card">
+          <label>Atomic Mass</label>
+          <span id="fact-mass">1.008</span><span class="unit">u</span>
+        </div>
+        <div class="fact-card">
+          <label>Density</label>
+          <span id="fact-density">0.000089</span><span class="unit" id="fact-density-unit">g/cm³</span>
+        </div>
+        <div class="fact-card">
+          <label>Melting Point</label>
+          <span id="fact-melt">14.01</span><span class="unit">K</span>
+        </div>
+        <div class="fact-card">
+          <label>Boiling Point</label>
+          <span id="fact-boil">20.28</span><span class="unit">K</span>
+        </div>
+        <div class="fact-card">
+          <label>Electronegativity</label>
+          <span id="fact-neg">2.20</span>
+        </div>
+        <div class="fact-card">
+          <label>State (STP)</label>
+          <span id="fact-state" style="text-transform: capitalize;">Gas</span>
+        </div>
+      </div>
+
+      <!-- Element Description & Chemistry Facts -->
+      <div class="description-section">
+        <h3>Overview</h3>
+        <p id="drawer-description">Hydrogen is the first element on the periodic table and the most abundant chemical substance in the universe.</p>
+      </div>
+
+      <!-- Bohr Electron Shell Configuration List -->
+      <div class="description-section">
+        <h3>Electron Configuration</h3>
+        <p id="drawer-shell-config" style="font-family: var(--font-display); font-weight: 500; color: #fbbf24; margin-bottom: 0.5rem;">1s¹</p>
+        
+        <div class="shell-diagram-container">
+          <!-- Concentric rings list -->
+          <div class="shell-dots-list" id="drawer-shell-list">
+            <div class="shell-dot-item"><label>Shell 1 (K)</label><span>1 electron</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discovery Details -->
+      <div class="discovery-card">
+        <div class="discovery-left">
+          <label>Discovered By</label>
+          <span id="drawer-discoverer">Henry Cavendish</span>
+        </div>
+        <div class="discovery-right" id="drawer-discover-year">
+          1766
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Core Logic scripts -->
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>

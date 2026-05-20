@@ -5,34 +5,34 @@
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Theme Colors */
-  --bg-deep: #080b16;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-card-hover: rgba(255, 255, 255, 0.07);
-  --bg-modal: rgba(10, 14, 28, 0.85);
+  /* Theme Colors - Light Cosmic Frosted Glass Theme */
+  --bg-deep: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.55);
+  --bg-card-hover: rgba(255, 255, 255, 0.85);
+  --bg-modal: rgba(255, 255, 255, 0.92);
   
-  --border-light: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(255, 255, 255, 0.25);
+  --border-light: rgba(15, 23, 42, 0.08);
+  --border-focus: rgba(15, 23, 42, 0.2);
   
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #64748b;
   
-  /* Category Colors (Highly Vibrant & Curated HSL Colors) */
-  --color-reactive-nonmetal: #38bdf8;      /* Vibrant Sky Blue */
-  --color-noble-gas: #ec4899;              /* Deep Pink */
-  --color-alkali-metal: #ef4444;           /* Coral Red */
-  --color-alkaline-earth-metal: #f97316;   /* Neon Orange */
-  --color-metalloid: #eab308;              /* Bright Gold */
-  --color-post-transition-metal: #10b981;  /* Emerald Green */
-  --color-transition-metal: #3b82f6;       /* Electric Blue */
-  --color-lanthanide: #8b5cf6;             /* Royal Violet */
-  --color-actinide: #d946ef;               /* Bright Fuchsia */
+  /* Category Colors (Slightly deeper for excellent contrast on light backgrounds) */
+  --color-reactive-nonmetal: #0284c7;      /* Vibrant Sky Blue */
+  --color-noble-gas: #db2777;              /* Deep Pink */
+  --color-alkali-metal: #dc2626;           /* Coral Red */
+  --color-alkaline-earth-metal: #ea580c;   /* Neon Orange */
+  --color-metalloid: #ca8a04;              /* Amber Gold */
+  --color-post-transition-metal: #059669;  /* Emerald Green */
+  --color-transition-metal: #2563eb;       /* Electric Blue */
+  --color-lanthanide: #7c3aed;             /* Royal Violet */
+  --color-actinide: #c026d3;               /* Bright Fuchsia */
 
   /* State Colors */
-  --state-solid: #cbd5e1;
-  --state-liquid: #38bdf8;
-  --state-gas: #a855f7;
+  --state-solid: #64748b;
+  --state-liquid: #0284c7;
+  --state-gas: #7c3aed;
   --state-synthetic: #94a3b8;
 
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -64,7 +64,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: -2;
-  background: radial-gradient(circle at 50% 50%, #151933 0%, #080b16 100%);
+  background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
   overflow: hidden;
 }
 
@@ -75,14 +75,14 @@ body {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 150px, rgba(255,255,255,0.7), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 150px 240px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 200px 300px, rgba(255,255,255,0.85), rgba(0,0,0,0));
+    radial-gradient(1px 1px at 20px 30px, rgba(15, 23, 42, 0.25), rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 40px 70px, rgba(15, 23, 42, 0.2), rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 150px, rgba(15, 23, 42, 0.15), rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 150px 240px, rgba(15, 23, 42, 0.25), rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 200px 300px, rgba(15, 23, 42, 0.18), rgba(0,0,0,0));
   background-repeat: repeat;
   background-size: 350px 350px;
-  opacity: 0.15;
+  opacity: 0.25;
   animation: star-drift 200s linear infinite;
   z-index: -1;
 }
@@ -98,19 +98,19 @@ body {
   height: 500px;
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.08;
+  opacity: 0.15;
   z-index: -1;
   pointer-events: none;
 }
 
 .nebula-purple {
-  background: radial-gradient(circle, #8338ec 0%, transparent 70%);
+  background: radial-gradient(circle, #c084fc 0%, transparent 70%);
   top: 10%;
   right: -5%;
 }
 
 .nebula-blue {
-  background: radial-gradient(circle, #3a86ff 0%, transparent 70%);
+  background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
   bottom: 10%;
   left: -5%;
 }
@@ -140,7 +140,7 @@ header {
   font-size: 2.2rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  background: linear-gradient(135deg, #f8fafc 20%, var(--color-transition-metal) 80%);
+  background: linear-gradient(135deg, #0f172a 20%, var(--color-transition-metal) 80%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: flex;
@@ -217,7 +217,7 @@ header {
 
 .search-box input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.6);
   border: 1px solid var(--border-light);
   padding: 0.75rem 1rem 0.75rem 2.5rem;
   border-radius: 8px;
@@ -230,8 +230,8 @@ header {
 
 .search-box input:focus {
   border-color: var(--color-transition-metal);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
-  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.15);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .search-box svg {
@@ -251,7 +251,7 @@ header {
   align-items: center;
   gap: 1rem;
   min-width: 320px;
-  background: rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.5);
   border: 1px solid var(--border-light);
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -609,7 +609,7 @@ header {
 /* 3D Visualizer Panel */
 .visualizer-container {
   position: relative;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(15, 23, 42, 0.03);
   border: 1px solid var(--border-light);
   border-radius: 12px;
   height: 320px;
@@ -635,7 +635,7 @@ header {
 
 .visualizer-controls {
   pointer-events: all;
-  background: rgba(10, 14, 28, 0.8);
+  background: rgba(255, 255, 255, 0.75);
   border: 1px solid var(--border-light);
   backdrop-filter: blur(8px);
   padding: 0.4rem 0.8rem;
@@ -670,8 +670,8 @@ header {
 
 .visualizer-hint {
   font-size: 0.7rem;
-  color: var(--text-muted);
-  background: rgba(0,0,0,0.5);
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.65);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   align-self: center;
@@ -685,7 +685,7 @@ header {
 }
 
 .fact-card {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.65);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 0.75rem;
@@ -738,7 +738,7 @@ header {
 /* Bohr Electron Shell Diagram Section */
 .shell-diagram-container {
   display: flex;
-  background: rgba(255,255,255,0.01);
+  background: rgba(255,255,255,0.5);
   border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 1.25rem;
@@ -760,7 +760,7 @@ header {
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
-  border-bottom: 1px dotted rgba(255,255,255,0.1);
+  border-bottom: 1px dotted rgba(15,23,42,0.1);
   padding-bottom: 0.25rem;
 }
 
@@ -773,14 +773,14 @@ header {
   font-family: var(--font-display);
   font-weight: 600;
   color: var(--cat-color);
-  background: rgba(255,255,255,0.04);
+  background: rgba(15,23,42,0.04);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
 }
 
 /* Discovery Banner */
 .discovery-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -806,7 +806,7 @@ header {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.2rem;
-  color: #fbbf24;
+  color: #d97706;
 }
 
 /* Custom Scrollbars */
@@ -816,14 +816,14 @@ header {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.15);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(15, 23, 42, 0.3);
 }

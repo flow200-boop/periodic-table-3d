@@ -455,15 +455,15 @@ export class AtomViewer {
   // Returns standard hex color code mapped to element categories
   getCategoryColor(category) {
     const colors = {
-      "reactive-nonmetal": 0x38bdf8,
-      "noble-gas": 0xec4899,
-      "alkali-metal": 0xef4444,
-      "alkaline-earth-metal": 0xf97316,
-      "metalloid": 0xeab308,
-      "post-transition-metal": 0x10b981,
-      "transition-metal": 0x3b82f6,
-      "lanthanide": 0x8b5cf6,
-      "actinide": 0xd946ef
+      "reactive-nonmetal": 0x0284c7,
+      "noble-gas": 0xdb2777,
+      "alkali-metal": 0xdc2626,
+      "alkaline-earth-metal": 0xea580c,
+      "metalloid": 0xca8a04,
+      "post-transition-metal": 0x059669,
+      "transition-metal": 0x2563eb,
+      "lanthanide": 0x7c3aed,
+      "actinide": 0xc026d3
     };
     return colors[category] || 0xffffff;
   }

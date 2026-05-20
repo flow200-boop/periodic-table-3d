@@ -217,7 +217,7 @@ export class AtomViewer {
       const ringMat = new THREE.MeshBasicMaterial({
         color: themeColor,
         transparent: true,
-        opacity: 0.14,
+        opacity: 0.18,
         side: THREE.DoubleSide
       });
       
@@ -244,7 +244,7 @@ export class AtomViewer {
       const lineMat = new THREE.LineBasicMaterial({ 
         color: themeColor, 
         transparent: true, 
-        opacity: 0.25 
+        opacity: 0.32 
       });
       const orbitLine = new THREE.Line(lineGeom, lineMat);
       orbitGroupWrapper.add(orbitLine);

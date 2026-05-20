@@ -37,6 +37,7 @@
 
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --glass-blur: blur(12px);
+  --cat-color: rgba(0, 150, 136, 0.2); /* Light teal accent */
 }
 
 /* Global Reset & Base Styles */
@@ -335,8 +336,8 @@ header {
 
 .filter-btn.active {
   color: var(--text-primary);
-  box-shadow: 0 2px 8px rgba(from var(--cat-color) r g b / 0.25);
-  background: rgba(from var(--cat-color) r g b / 0.12);
+  box-shadow: 0 2px 8px var(--cat-color);
+  background: var(--cat-color);
   border-color: var(--cat-color);
 }
 
@@ -387,7 +388,7 @@ header {
   transform: translateY(-4px) scale(1.03);
   background: var(--bg-card-hover);
   border-color: var(--cat-color);
-  box-shadow: 0 10px 20px -8px rgba(15, 23, 42, 0.1), 0 0 8px rgba(from var(--cat-color) r g b / 0.15);
+  box-shadow: 0 10px 20px -8px rgba(15, 23, 42, 0.1), 0 0 8px var(--cat-color);
   z-index: 5;
 }
 
@@ -398,7 +399,7 @@ header {
 }
 
 .element-card.highlighted {
-  box-shadow: 0 0 12px rgba(from var(--cat-color) r g b / 0.3);
+  box-shadow: 0 0 12px var(--cat-color);
   border-color: var(--cat-color);
   transform: scale(1.02);
 }
@@ -540,7 +541,7 @@ header {
 .drawer-element-symbol-box {
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--cat-color);
-  box-shadow: 0 0 15px rgba(from var(--cat-color) r g b / 0.15);
+  box-shadow: 0 0 15px var(--cat-color);
   width: 56px;
   height: 56px;
   border-radius: 10px;

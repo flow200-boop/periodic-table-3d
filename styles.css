@@ -5,11 +5,11 @@
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Theme Colors - Light Cosmic Frosted Glass Theme */
+  /* Theme Colors (Premium Light Mode) */
   --bg-deep: #f1f5f9;
-  --bg-card: rgba(255, 255, 255, 0.55);
-  --bg-card-hover: rgba(255, 255, 255, 0.85);
-  --bg-modal: rgba(255, 255, 255, 0.92);
+  --bg-card: rgba(255, 255, 255, 0.65);
+  --bg-card-hover: rgba(255, 255, 255, 0.9);
+  --bg-modal: rgba(255, 255, 255, 0.85);
   
   --border-light: rgba(15, 23, 42, 0.08);
   --border-focus: rgba(15, 23, 42, 0.2);
@@ -18,21 +18,21 @@
   --text-secondary: #475569;
   --text-muted: #64748b;
   
-  /* Category Colors (Slightly deeper for excellent contrast on light backgrounds) */
-  --color-reactive-nonmetal: #0284c7;      /* Vibrant Sky Blue */
-  --color-noble-gas: #db2777;              /* Deep Pink */
-  --color-alkali-metal: #dc2626;           /* Coral Red */
-  --color-alkaline-earth-metal: #ea580c;   /* Neon Orange */
-  --color-metalloid: #ca8a04;              /* Amber Gold */
-  --color-post-transition-metal: #059669;  /* Emerald Green */
-  --color-transition-metal: #2563eb;       /* Electric Blue */
-  --color-lanthanide: #7c3aed;             /* Royal Violet */
-  --color-actinide: #c026d3;               /* Bright Fuchsia */
+  /* Category Colors (Highly Vibrant & Curated HSL Colors) */
+  --color-reactive-nonmetal: #38bdf8;      /* Vibrant Sky Blue */
+  --color-noble-gas: #ec4899;              /* Deep Pink */
+  --color-alkali-metal: #ef4444;           /* Coral Red */
+  --color-alkaline-earth-metal: #f97316;   /* Neon Orange */
+  --color-metalloid: #eab308;              /* Bright Gold */
+  --color-post-transition-metal: #10b981;  /* Emerald Green */
+  --color-transition-metal: #3b82f6;       /* Electric Blue */
+  --color-lanthanide: #8b5cf6;             /* Royal Violet */
+  --color-actinide: #d946ef;               /* Bright Fuchsia */
 
   /* State Colors */
-  --state-solid: #64748b;
-  --state-liquid: #0284c7;
-  --state-gas: #7c3aed;
+  --state-solid: #cbd5e1;
+  --state-liquid: #38bdf8;
+  --state-gas: #a855f7;
   --state-synthetic: #94a3b8;
 
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -56,7 +56,7 @@ body {
   line-height: 1.5;
 }
 
-/* Cosmic Space Animated Background */
+/* Cosmic Space Animated Background (Light Mode) */
 .space-bg {
   position: fixed;
   top: 0;
@@ -64,7 +64,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: -2;
-  background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
+  background: radial-gradient(circle at 50% 50%, #e2e8f0 0%, #f1f5f9 100%);
   overflow: hidden;
 }
 
@@ -75,14 +75,14 @@ body {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(1px 1px at 20px 30px, rgba(15, 23, 42, 0.25), rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 40px 70px, rgba(15, 23, 42, 0.2), rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 150px, rgba(15, 23, 42, 0.15), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 150px 240px, rgba(15, 23, 42, 0.25), rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 200px 300px, rgba(15, 23, 42, 0.18), rgba(0,0,0,0));
+    radial-gradient(1px 1px at 20px 30px, rgba(15, 23, 42, 0.1), rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 40px 70px, rgba(15, 23, 42, 0.08), rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 150px, rgba(15, 23, 42, 0.06), rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 150px 240px, rgba(15, 23, 42, 0.07), rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 200px 300px, rgba(15, 23, 42, 0.05), rgba(0,0,0,0));
   background-repeat: repeat;
   background-size: 350px 350px;
-  opacity: 0.25;
+  opacity: 0.6;
   animation: star-drift 200s linear infinite;
   z-index: -1;
 }
@@ -98,19 +98,19 @@ body {
   height: 500px;
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.15;
+  opacity: 0.35;
   z-index: -1;
   pointer-events: none;
 }
 
 .nebula-purple {
-  background: radial-gradient(circle, #c084fc 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%);
   top: 10%;
   right: -5%;
 }
 
 .nebula-blue {
-  background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, transparent 70%);
   bottom: 10%;
   left: -5%;
 }
@@ -154,9 +154,9 @@ header {
   padding: 0.25rem 0.5rem;
   border: 1px solid var(--color-transition-metal);
   border-radius: 6px;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.08);
   color: var(--color-transition-metal);
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  text-shadow: 0 1px 4px rgba(59, 130, 246, 0.2);
 }
 
 .logo-section p {
@@ -195,7 +195,7 @@ header {
   border-radius: 16px;
   padding: 1.25rem;
   backdrop-filter: var(--glass-blur);
-  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.05);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -217,7 +217,7 @@ header {
 
 .search-box input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.4);
   border: 1px solid var(--border-light);
   padding: 0.75rem 1rem 0.75rem 2.5rem;
   border-radius: 8px;
@@ -230,8 +230,8 @@ header {
 
 .search-box input:focus {
   border-color: var(--color-transition-metal);
-  box-shadow: 0 0 12px rgba(37, 99, 235, 0.15);
-  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.1);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .search-box svg {
@@ -251,7 +251,7 @@ header {
   align-items: center;
   gap: 1rem;
   min-width: 320px;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.4);
   border: 1px solid var(--border-light);
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -286,9 +286,9 @@ header {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--text-primary);
-  border: 2px solid var(--bg-deep);
-  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+  background: #3b82f6;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   cursor: pointer;
   transition: transform 0.1s;
 }
@@ -301,7 +301,7 @@ header {
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
-  color: #b45309;
+  color: #d97706;
   min-width: 85px;
   text-align: right;
   white-space: nowrap;
@@ -315,7 +315,7 @@ header {
 }
 
 .filter-btn {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.4);
   border: 1px solid var(--border-light);
   color: var(--text-secondary);
   padding: 0.4rem 0.8rem;
@@ -329,14 +329,14 @@ header {
 
 .filter-btn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255,255,255,0.85);
   border-color: var(--border-focus);
 }
 
 .filter-btn.active {
   color: var(--text-primary);
-  box-shadow: 0 0 12px var(--cat-color);
-  background: color-mix(in srgb, var(--cat-color) 12%, transparent);
+  box-shadow: 0 2px 8px rgba(from var(--cat-color) r g b / 0.25);
+  background: rgba(from var(--cat-color) r g b / 0.12);
   border-color: var(--cat-color);
 }
 
@@ -366,7 +366,7 @@ header {
   cursor: pointer;
   position: relative;
   transition: var(--transition-smooth);
-  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.03);
   overflow: hidden;
   user-select: none;
 }
@@ -387,7 +387,7 @@ header {
   transform: translateY(-4px) scale(1.03);
   background: var(--bg-card-hover);
   border-color: var(--cat-color);
-  box-shadow: 0 10px 25px -8px rgba(15, 23, 42, 0.12), 0 0 12px color-mix(in srgb, var(--cat-color) 25%, transparent);
+  box-shadow: 0 10px 20px -8px rgba(15, 23, 42, 0.1), 0 0 8px rgba(from var(--cat-color) r g b / 0.15);
   z-index: 5;
 }
 
@@ -398,7 +398,7 @@ header {
 }
 
 .element-card.highlighted {
-  box-shadow: 0 0 15px var(--cat-color);
+  box-shadow: 0 0 12px rgba(from var(--cat-color) r g b / 0.3);
   border-color: var(--cat-color);
   transform: scale(1.02);
 }
@@ -475,7 +475,7 @@ header {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.2);
+  background: rgba(15, 23, 42, 0.3);
   backdrop-filter: blur(4px);
   z-index: 100;
   opacity: 0;
@@ -496,7 +496,7 @@ header {
   height: 100%;
   background: var(--bg-modal);
   border-left: 1px solid var(--border-light);
-  box-shadow: -10px 0 40px rgba(15, 23, 42, 0.08);
+  box-shadow: -10px 0 30px rgba(15, 23, 42, 0.08);
   z-index: 101;
   backdrop-filter: var(--glass-blur);
   transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -538,9 +538,9 @@ header {
 }
 
 .drawer-element-symbol-box {
-  background: rgba(255,255,255,0.65);
+  background: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--cat-color);
-  box-shadow: 0 0 15px color-mix(in srgb, var(--cat-color) 20%, transparent);
+  box-shadow: 0 0 15px rgba(from var(--cat-color) r g b / 0.15);
   width: 56px;
   height: 56px;
   border-radius: 10px;
@@ -577,7 +577,7 @@ header {
 }
 
 .close-btn {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.5);
   border: 1px solid var(--border-light);
   border-radius: 50%;
   width: 36px;
@@ -591,7 +591,7 @@ header {
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--text-primary);
   border-color: var(--border-focus);
 }
@@ -609,8 +609,8 @@ header {
 /* 3D Visualizer Panel */
 .visualizer-container {
   position: relative;
-  background: rgba(15, 23, 42, 0.03);
-  border: 1px solid var(--border-light);
+  background: #0d1326;
+  border: 1px solid rgba(15, 23, 42, 0.15);
   border-radius: 12px;
   height: 320px;
   width: 100%;
@@ -635,8 +635,8 @@ header {
 
 .visualizer-controls {
   pointer-events: all;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid var(--border-light);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
@@ -648,7 +648,7 @@ header {
 .vis-btn {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: #94a3b8;
   cursor: pointer;
   font-family: var(--font-body);
   font-size: 0.75rem;
@@ -660,7 +660,7 @@ header {
 }
 
 .vis-btn:hover {
-  color: var(--text-primary);
+  color: #f8fafc;
 }
 
 .vis-btn.active {
@@ -670,8 +670,8 @@ header {
 
 .visualizer-hint {
   font-size: 0.7rem;
-  color: var(--text-secondary);
-  background: rgba(255,255,255,0.65);
+  color: #94a3b8;
+  background: rgba(0, 0, 0, 0.5);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   align-self: center;
@@ -685,10 +685,11 @@ header {
 }
 
 .fact-card {
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.6);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 0.75rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
 }
 
 .fact-card label {
@@ -738,13 +739,14 @@ header {
 /* Bohr Electron Shell Diagram Section */
 .shell-diagram-container {
   display: flex;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.6);
   border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 1.25rem;
   gap: 1.5rem;
   align-items: center;
   flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
 }
 
 .shell-dots-list {
@@ -760,7 +762,7 @@ header {
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
-  border-bottom: 1px dotted rgba(15,23,42,0.1);
+  border-bottom: 1px dotted rgba(15, 23, 42, 0.1);
   padding-bottom: 0.25rem;
 }
 
@@ -773,14 +775,14 @@ header {
   font-family: var(--font-display);
   font-weight: 600;
   color: var(--cat-color);
-  background: rgba(15,23,42,0.04);
+  background: rgba(15, 23, 42, 0.04);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
 }
 
 /* Discovery Banner */
 .discovery-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -788,6 +790,7 @@ header {
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
 }
 
 .discovery-left label {
@@ -806,7 +809,7 @@ header {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.2rem;
-  color: #b45309;
+  color: #d97706;
 }
 
 /* Custom Scrollbars */
@@ -816,7 +819,7 @@ header {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(15, 23, 42, 0.03);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -827,39 +830,3 @@ header {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(15, 23, 42, 0.3);
 }
-
-/* Widescreen Desktop Split-Pane Layout */
-@media (min-width: 1024px) {
-  .detail-drawer {
-    width: 75vw;
-    right: -80vw;
-  }
-  
-  .detail-drawer.open {
-    right: 0;
-  }
-  
-  .drawer-content {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 1.75rem;
-    overflow: hidden;
-    min-height: 0;
-  }
-  
-  .visualizer-container {
-    height: 100% !important;
-    max-height: 100%;
-    margin-bottom: 0;
-  }
-  
-  .drawer-info-col {
-    overflow-y: auto;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    padding-right: 0.5rem;
-  }
-}
-

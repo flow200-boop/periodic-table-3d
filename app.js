@@ -27,15 +27,15 @@ const categoriesMap = {
 
 // Category hex colors for inline CSS mapping
 const categoryColors = {
-  "reactive-nonmetal": "#0284c7",
-  "noble-gas": "#db2777",
-  "alkali-metal": "#dc2626",
-  "alkaline-earth-metal": "#ea580c",
-  "metalloid": "#ca8a04",
-  "post-transition-metal": "#059669",
-  "transition-metal": "#2563eb",
-  "lanthanide": "#7c3aed",
-  "actinide": "#c026d3"
+  "reactive-nonmetal": "#38bdf8",
+  "noble-gas": "#ec4899",
+  "alkali-metal": "#ef4444",
+  "alkaline-earth-metal": "#f97316",
+  "metalloid": "#eab308",
+  "post-transition-metal": "#10b981",
+  "transition-metal": "#3b82f6",
+  "lanthanide": "#8b5cf6",
+  "actinide": "#d946ef"
 };
 
 // DOM References
@@ -339,13 +339,6 @@ function openElementDetail(el) {
   // Open drawers elements
   drawerOverlay.classList.add('open');
   elementDrawer.classList.add('open');
-  
-  // Trigger onResize once the CSS animation completes (approx 450ms) to ensure perfect 3D dimensions
-  setTimeout(() => {
-    if (state.viewerInstance) {
-      state.viewerInstance.onResize();
-    }
-  }, 450);
 }
 
 function closeElementDetail() {

@@ -141,64 +141,61 @@
         </div>
       </div>
 
-      <!-- Information Column (Scrollable on desktop) -->
-      <div class="drawer-info-col">
-        <!-- Physical Properties Fact Sheets -->
-        <div class="facts-grid">
-          <div class="fact-card">
-            <label>Atomic Mass</label>
-            <span id="fact-mass">1.008</span><span class="unit">u</span>
-          </div>
-          <div class="fact-card">
-            <label>Density</label>
-            <span id="fact-density">0.000089</span><span class="unit" id="fact-density-unit">g/cm³</span>
-          </div>
-          <div class="fact-card">
-            <label>Melting Point</label>
-            <span id="fact-melt">14.01</span><span class="unit">K</span>
-          </div>
-          <div class="fact-card">
-            <label>Boiling Point</label>
-            <span id="fact-boil">20.28</span><span class="unit">K</span>
-          </div>
-          <div class="fact-card">
-            <label>Electronegativity</label>
-            <span id="fact-neg">2.20</span>
-          </div>
-          <div class="fact-card">
-            <label>State (STP)</label>
-            <span id="fact-state" style="text-transform: capitalize;">Gas</span>
+      <!-- Physical Properties Fact Sheets -->
+      <div class="facts-grid">
+        <div class="fact-card">
+          <label>Atomic Mass</label>
+          <span id="fact-mass">1.008</span><span class="unit">u</span>
+        </div>
+        <div class="fact-card">
+          <label>Density</label>
+          <span id="fact-density">0.000089</span><span class="unit" id="fact-density-unit">g/cm³</span>
+        </div>
+        <div class="fact-card">
+          <label>Melting Point</label>
+          <span id="fact-melt">14.01</span><span class="unit">K</span>
+        </div>
+        <div class="fact-card">
+          <label>Boiling Point</label>
+          <span id="fact-boil">20.28</span><span class="unit">K</span>
+        </div>
+        <div class="fact-card">
+          <label>Electronegativity</label>
+          <span id="fact-neg">2.20</span>
+        </div>
+        <div class="fact-card">
+          <label>State (STP)</label>
+          <span id="fact-state" style="text-transform: capitalize;">Gas</span>
+        </div>
+      </div>
+
+      <!-- Element Description & Chemistry Facts -->
+      <div class="description-section">
+        <h3>Overview</h3>
+        <p id="drawer-description">Hydrogen is the first element on the periodic table and the most abundant chemical substance in the universe.</p>
+      </div>
+
+      <!-- Bohr Electron Shell Configuration List -->
+      <div class="description-section">
+        <h3>Electron Configuration</h3>
+        <p id="drawer-shell-config" style="font-family: var(--font-display); font-weight: 500; color: #d97706; margin-bottom: 0.5rem;">1s¹</p>
+        
+        <div class="shell-diagram-container">
+          <!-- Concentric rings list -->
+          <div class="shell-dots-list" id="drawer-shell-list">
+            <div class="shell-dot-item"><label>Shell 1 (K)</label><span>1 electron</span></div>
           </div>
         </div>
+      </div>
 
-        <!-- Element Description & Chemistry Facts -->
-        <div class="description-section">
-          <h3>Overview</h3>
-          <p id="drawer-description">Hydrogen is the first element on the periodic table and the most abundant chemical substance in the universe.</p>
+      <!-- Discovery Details -->
+      <div class="discovery-card">
+        <div class="discovery-left">
+          <label>Discovered By</label>
+          <span id="drawer-discoverer">Henry Cavendish</span>
         </div>
-
-        <!-- Bohr Electron Shell Configuration List -->
-        <div class="description-section">
-          <h3>Electron Configuration</h3>
-          <p id="drawer-shell-config" style="font-family: var(--font-display); font-weight: 500; color: #b45309; margin-bottom: 0.5rem;">1s¹</p>
-          
-          <div class="shell-diagram-container">
-            <!-- Concentric rings list -->
-            <div class="shell-dots-list" id="drawer-shell-list">
-              <div class="shell-dot-item"><label>Shell 1 (K)</label><span>1 electron</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Discovery Details -->
-        <div class="discovery-card">
-          <div class="discovery-left">
-            <label>Discovered By</label>
-            <span id="drawer-discoverer">Henry Cavendish</span>
-          </div>
-          <div class="discovery-right" id="drawer-discover-year">
-            1766
-          </div>
+        <div class="discovery-right" id="drawer-discover-year">
+          1766
         </div>
       </div>
 

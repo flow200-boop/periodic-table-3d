@@ -339,6 +339,13 @@ function openElementDetail(el) {
   // Open drawers elements
   drawerOverlay.classList.add('open');
   elementDrawer.classList.add('open');
+  
+  // Trigger onResize once the CSS animation completes (approx 450ms) to ensure perfect 3D dimensions
+  setTimeout(() => {
+    if (state.viewerInstance) {
+      state.viewerInstance.onResize();
+    }
+  }, 450);
 }
 
 function closeElementDetail() {

@@ -827,3 +827,39 @@ header {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(15, 23, 42, 0.3);
 }
+
+/* Widescreen Desktop Split-Pane Layout */
+@media (min-width: 1024px) {
+  .detail-drawer {
+    width: 75vw;
+    right: -80vw;
+  }
+  
+  .detail-drawer.open {
+    right: 0;
+  }
+  
+  .drawer-content {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 1.75rem;
+    overflow: hidden;
+    min-height: 0;
+  }
+  
+  .visualizer-container {
+    height: 100% !important;
+    max-height: 100%;
+    margin-bottom: 0;
+  }
+  
+  .drawer-info-col {
+    overflow-y: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-right: 0.5rem;
+  }
+}
+

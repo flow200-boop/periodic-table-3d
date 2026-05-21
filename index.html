@@ -1,209 +1,886 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="An interactive 3D Periodic Table of Elements featuring dynamic 3D Bohr atom models, quantum electron cloud visualizations, real-time temperature-based state simulations, and detailed element summaries.">
-  <title>Aether Elements - Interactive 3D Periodic Table</title>
-  
-  <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aether Elements — Interactive 3D Periodic Table</title>
+<meta name="description" content="Interactive Periodic Table with 3D atom viewer, temperature simulation, and element details.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font-d:'Space Grotesk',-apple-system,sans-serif;
+  --font-b:'Outfit',-apple-system,sans-serif;
+  --bg:#f0f4f8;
+  --card:rgba(255,255,255,0.72);
+  --card-h:rgba(255,255,255,0.96);
+  --modal:rgba(248,250,252,0.94);
+  --bdr:rgba(15,23,42,0.1);
+  --bdr-f:rgba(15,23,42,0.22);
+  --txt:#0f172a;
+  --txt2:#475569;
+  --txt3:#64748b;
+  --tr:all 0.22s cubic-bezier(.4,0,.2,1);
+  --blur:blur(14px);
+  --shadow:0 2px 14px rgba(15,23,42,0.07);
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--txt);font-family:var(--font-b);min-height:100vh;overflow-x:hidden}
 
-  <!-- Import Map for ES Modules CDN Loading -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-        "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js"
-      }
-    }
-  </script>
+/* ── BACKGROUND ── */
+.bg{position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 65% 15%,#dbeafe 0%,#f0f4f8 50%,#fce7f3 100%)}
+.bg-dots{position:fixed;inset:0;z-index:-1;
+  background-image:radial-gradient(1px 1px at 30px 40px,rgba(15,23,42,.07),transparent),
+    radial-gradient(1.5px 1.5px at 80px 90px,rgba(15,23,42,.05),transparent),
+    radial-gradient(1px 1px at 140px 160px,rgba(15,23,42,.06),transparent),
+    radial-gradient(2px 2px at 220px 70px,rgba(15,23,42,.04),transparent),
+    radial-gradient(1px 1px at 310px 260px,rgba(15,23,42,.05),transparent);
+  background-size:420px 420px;animation:drift 200s linear infinite}
+@keyframes drift{from{background-position:0 0}to{background-position:420px 840px}}
+.blob{position:fixed;border-radius:50%;filter:blur(110px);opacity:.22;pointer-events:none;z-index:-1}
+.blob1{width:560px;height:560px;background:radial-gradient(#a78bfa,transparent 70%);top:-8%;right:-4%}
+.blob2{width:560px;height:560px;background:radial-gradient(#7dd3fc,transparent 70%);bottom:-8%;left:-4%}
+
+/* ── LAYOUT ── */
+.app{max-width:1720px;margin:0 auto;padding:1.6rem 1.4rem;display:flex;flex-direction:column;gap:1.4rem}
+
+/* ── HEADER ── */
+header{display:flex;justify-content:space-between;align-items:center;padding-bottom:1.2rem;border-bottom:1px solid var(--bdr)}
+.logo h1{font-family:var(--font-d);font-size:1.9rem;font-weight:700;letter-spacing:-.03em;
+  background:linear-gradient(135deg,#1e3a5f 0%,#3b82f6 55%,#8b5cf6 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:flex;align-items:center;gap:.65rem}
+.logo h1 em{font-style:normal;font-size:.78rem;font-weight:600;padding:.18rem .48rem;
+  border:1.5px solid #3b82f6;border-radius:6px;background:rgba(59,130,246,.1);
+  color:#3b82f6;-webkit-text-fill-color:#3b82f6;letter-spacing:.05em}
+.logo p{color:var(--txt2);font-size:.84rem;margin-top:.18rem}
+.stats{display:flex;gap:.6rem;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--bdr);backdrop-filter:var(--blur);
+  padding:.4rem .85rem;border-radius:8px;display:flex;align-items:center;gap:.4rem;
+  font-size:.8rem;color:var(--txt2);box-shadow:var(--shadow)}
+.stat strong{color:var(--txt);font-weight:700;font-size:.92rem}
+
+/* ── CONTROLS ── */
+.controls{background:var(--card);border:1px solid var(--bdr);border-radius:16px;
+  padding:1.1rem 1.4rem;backdrop-filter:var(--blur);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:1rem}
+.ctrl-top{display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap}
+.search{flex:1;min-width:240px;position:relative}
+.search svg{position:absolute;left:.8rem;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--txt3);pointer-events:none}
+.search input{width:100%;background:rgba(255,255,255,.55);border:1.5px solid var(--bdr);
+  padding:.6rem .9rem .6rem 2.3rem;border-radius:10px;color:var(--txt);font-family:var(--font-b);
+  font-size:.88rem;outline:none;transition:var(--tr)}
+.search input::placeholder{color:var(--txt3)}
+.search input:focus{border-color:#3b82f6;background:rgba(255,255,255,.92);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.temp-wrap{display:flex;align-items:center;gap:.85rem;min-width:290px;
+  background:rgba(255,255,255,.55);border:1.5px solid var(--bdr);padding:.45rem .95rem;border-radius:10px}
+.temp-lbl{font-size:.8rem;color:var(--txt2);font-weight:600;white-space:nowrap}
+.temp-inner{display:flex;align-items:center;gap:.65rem;flex:1}
+.temp-inner input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;
+  background:linear-gradient(to right,#38bdf8,#f59e0b,#ef4444);outline:none;cursor:pointer}
+.temp-inner input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:#fff;border:2.5px solid #3b82f6;box-shadow:0 1px 6px rgba(0,0,0,.18);cursor:pointer;transition:transform .12s}
+.temp-inner input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25)}
+.temp-val{font-family:var(--font-d);font-size:.88rem;font-weight:700;color:#d97706;min-width:92px;text-align:right;white-space:nowrap}
+.filters{display:flex;gap:.4rem;flex-wrap:wrap}
+.fbtn{background:rgba(255,255,255,.6);border:1.5px solid var(--bdr);color:var(--txt2);
+  padding:.32rem .75rem;border-radius:20px;cursor:pointer;font-family:var(--font-b);
+  font-size:.75rem;font-weight:600;transition:var(--tr);white-space:nowrap}
+.fbtn:hover{background:rgba(255,255,255,.92);color:var(--txt);transform:translateY(-1px)}
+
+/* ── PERIODIC TABLE ── */
+.pt-wrap{overflow-x:auto;padding-bottom:.4rem}
+.pt-grid{display:grid;grid-template-columns:repeat(18,minmax(60px,1fr));
+  grid-template-rows:repeat(10,minmax(72px,1fr));gap:5px;min-width:1180px}
+
+/* ── ELEMENT CARDS ── */
+.ecard{background:var(--card);border:1.5px solid var(--bdr);border-radius:8px;padding:5px 7px;
+  display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;
+  position:relative;transition:var(--tr);box-shadow:var(--shadow);overflow:hidden;user-select:none;
+  backdrop-filter:blur(6px)}
+.ecard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:var(--stripe,#3b82f6);border-radius:8px 0 0 8px}
+.ecard:hover{transform:translateY(-4px) scale(1.05);background:var(--card-h);
+  border-color:var(--stripe,#3b82f6);
+  box-shadow:0 14px 30px rgba(15,23,42,.13),0 0 0 1.5px var(--stripe,#3b82f6);z-index:5}
+.ecard.dim{opacity:.15;filter:grayscale(80%);pointer-events:none}
+.ecard.ph{border-style:dashed;opacity:.6;cursor:default}
+.ecard.ph:hover{transform:none;cursor:default}
+.ehdr{display:flex;justify-content:space-between;align-items:center}
+.enum{font-family:var(--font-d);font-size:.62rem;font-weight:600;color:var(--txt2)}
+.sbadge{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.esym{font-family:var(--font-d);font-size:1.5rem;font-weight:700;color:var(--txt);text-align:center;line-height:1;margin:1px 0}
+.eftr{display:flex;flex-direction:column;align-items:center;gap:1px}
+.ename{font-size:.58rem;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.emass{font-size:.5rem;color:var(--txt3);font-family:var(--font-d)}
+.la-spacer{pointer-events:none}
+
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.22);backdrop-filter:blur(4px);
+  z-index:100;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.overlay.open{opacity:1;pointer-events:all}
+
+/* ── DRAWER ── */
+.drawer{position:fixed;top:0;right:-55vw;width:50vw;min-width:360px;height:100%;
+  background:var(--modal);border-left:1.5px solid var(--bdr);
+  box-shadow:-8px 0 40px rgba(15,23,42,.1);z-index:101;backdrop-filter:var(--blur);
+  transition:right .4s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
+@media(max-width:1100px){.drawer{width:82vw;right:-87vw}}
+@media(max-width:768px){.drawer{width:100vw;right:-105vw}}
+.drawer.open{right:0}
+.d-hdr{padding:1.2rem 1.4rem;border-bottom:1.5px solid var(--bdr);
+  display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.6)}
+.d-left{display:flex;align-items:center;gap:.9rem}
+.d-symbox{background:rgba(255,255,255,.85);width:58px;height:58px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-d);
+  font-size:1.8rem;font-weight:700;border:2px solid #3b82f6;transition:var(--tr)}
+.d-name{font-family:var(--font-d);font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:.45rem}
+.d-name span{font-size:.82rem;font-weight:500;color:var(--txt2)}
+.d-cat{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-top:.12rem}
+.close-btn{background:rgba(255,255,255,.7);border:1.5px solid var(--bdr);border-radius:50%;
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--txt2);transition:var(--tr)}
+.close-btn:hover{background:#fff;color:var(--txt);transform:scale(1.1)}
+.d-body{flex:1;overflow-y:auto;padding:1.3rem;display:flex;flex-direction:column;gap:1.2rem}
+
+/* ── ATOM VIEWER ── */
+.viewer{position:relative;background:#080f1e;border-radius:14px;height:280px;overflow:hidden;
+  border:1.5px solid rgba(255,255,255,.06);box-shadow:0 4px 24px rgba(0,0,0,.22)}
+#atom-canvas{width:100%;height:100%;display:block}
+.v-hint{position:absolute;bottom:.6rem;right:.7rem;font-size:.66rem;color:#94a3b8;
+  background:rgba(8,15,30,.7);padding:.18rem .48rem;border-radius:4px}
+
+/* ── FACTS ── */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:.55rem}
+.fact{background:rgba(255,255,255,.72);border:1.5px solid var(--bdr);border-radius:10px;
+  padding:.65rem .8rem;box-shadow:var(--shadow);transition:var(--tr)}
+.fact:hover{background:rgba(255,255,255,.96);transform:translateY(-1px)}
+.fact label{font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.2rem}
+.fact span{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--txt)}
+.fact .unit{font-size:.68rem;font-weight:400;color:var(--txt2);margin-left:.08rem}
+
+/* ── DESCRIPTION ── */
+.section h3{font-family:var(--font-d);font-size:.95rem;font-weight:700;color:var(--txt);
+  border-bottom:1.5px solid var(--bdr);padding-bottom:.3rem;margin-bottom:.4rem}
+.section p{font-size:.86rem;color:var(--txt2);line-height:1.65}
+
+/* ── SHELLS ── */
+.shells-box{background:rgba(255,255,255,.65);border:1.5px solid var(--bdr);border-radius:12px;padding:1rem 1.2rem;box-shadow:var(--shadow)}
+.shell-item{display:flex;justify-content:space-between;align-items:center;
+  font-size:.83rem;padding-bottom:.22rem;border-bottom:1px dashed var(--bdr)}
+.shell-item:last-child{border-bottom:none;padding-bottom:0}
+.shell-item label{color:var(--txt2);font-weight:500}
+.shell-item span{font-family:var(--font-d);font-weight:700;padding:.08rem .4rem;border-radius:4px;background:rgba(15,23,42,.04)}
+
+/* ── DISCOVERY ── */
+.disc{background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(240,244,248,.7));
+  border:1.5px solid var(--bdr);border-radius:10px;padding:.8rem 1.05rem;
+  display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
+.disc-l label{font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.15rem}
+.disc-l span{font-weight:700;color:var(--txt);font-size:.88rem}
+.disc-yr{font-family:var(--font-d);font-weight:800;font-size:1.25rem;color:#d97706}
+
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:rgba(15,23,42,.03)}
+::-webkit-scrollbar-thumb{background:rgba(15,23,42,.16);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(15,23,42,.3)}
+</style>
 </head>
 <body>
 
-  <!-- Cosmic Particle Background -->
-  <div class="space-bg">
-    <div class="stars"></div>
-    <div class="nebula nebula-purple"></div>
-    <div class="nebula nebula-blue"></div>
-  </div>
+<div class="bg"></div>
+<div class="bg-dots"></div>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
 
-  <div class="app-container">
-    
-    <!-- Header Section -->
-    <header>
-      <div class="logo-section">
-        <h1>Aether Elements <span>3D</span></h1>
-        <p>Interactive Cosmic Periodic Table & Atom Simulator</p>
-      </div>
-
-      <!-- Quick Statistics Widgets -->
-      <div class="quick-stats">
-        <div class="stat-item" id="stat-solid">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-          Solid: <strong id="count-solid">0</strong>
-        </div>
-        <div class="stat-item" id="stat-liquid">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"></path></svg>
-          Liquid: <strong id="count-liquid">0</strong>
-        </div>
-        <div class="stat-item" id="stat-gas">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 8l0 4"></path><path d="M12 16l.01 0"></path></svg>
-          Gas: <strong id="count-gas">0</strong>
-        </div>
-        <div class="stat-item" id="stat-synth">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-          Synthetic: <strong id="count-synth">0</strong>
-        </div>
-      </div>
-    </header>
-
-    <!-- Controls Dashboard (Filters, Search, Temp Slider) -->
-    <section class="controls-dashboard" aria-label="Controls Dashboard">
-      <div class="controls-row-top">
-        
-        <!-- Interactive Search Bar -->
-        <div class="search-box">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input type="text" id="search-input" placeholder="Search by name, symbol, or atomic number (e.g., Carbon, Au, 26)..." aria-label="Search elements">
-        </div>
-
-        <!-- State-of-matter Temperature Slider -->
-        <div class="temp-slider-container">
-          <span class="temp-label">Simulate Temp:</span>
-          <div class="temp-slider-wrapper">
-            <input type="range" id="temp-range" min="0" max="6000" value="298" aria-label="Temperature slider in Kelvin">
-            <span class="temp-value" id="temp-val-display">298 K</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Category Filtering Badges -->
-      <div class="category-filters" id="filters-container">
-        <!-- Generated Dynamically via JS for precision -->
-      </div>
-    </section>
-
-    <!-- The Periodic Table Grid Area -->
-    <main class="periodic-table-wrapper" aria-label="Periodic Table of Elements">
-      <div class="periodic-table-grid" id="periodic-table">
-        <!-- Dynamic elements grids will be injected here via Javascript -->
-      </div>
-    </main>
-
-  </div>
-
-  <!-- Detailed Element Drawer (Slides out from right) -->
-  <div class="detail-modal-overlay" id="drawer-overlay"></div>
-  <div class="detail-drawer" id="element-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
-    
-    <!-- Drawer Header -->
-    <div class="drawer-header">
-      <div class="drawer-header-left">
-        <div class="drawer-element-symbol-box" id="drawer-sym-box" style="--cat-color: #3b82f6;">H</div>
-        <div class="drawer-title-group">
-          <h2 id="drawer-title">Hydrogen <span>#1</span></h2>
-          <p id="drawer-category">Reactive Nonmetal</p>
-        </div>
-      </div>
-      <button class="close-btn" id="close-drawer-btn" aria-label="Close details">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+<div class="app">
+  <header>
+    <div class="logo">
+      <h1>Aether Elements <em>3D</em></h1>
+      <p>Interactive Periodic Table &amp; Atom Simulator</p>
     </div>
+    <div class="stats">
+      <div class="stat">🧱 Solid: <strong id="s-solid">0</strong></div>
+      <div class="stat">💧 Liquid: <strong id="s-liquid">0</strong></div>
+      <div class="stat">💨 Gas: <strong id="s-gas">0</strong></div>
+      <div class="stat">⚗️ Synthetic: <strong id="s-synth">0</strong></div>
+    </div>
+  </header>
 
-    <!-- Drawer Content (Scrollable) -->
-    <div class="drawer-content">
-      
-      <!-- 3D Viewport Panel -->
-      <div class="visualizer-container">
-        <canvas id="canvas3d"></canvas>
-        <div class="visualizer-overlay">
-          <div class="visualizer-controls">
-            <button class="vis-btn active" id="btn-bohr-mode" aria-label="Switch to Bohr model">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
-              Bohr
-            </button>
-            <button class="vis-btn" id="btn-cloud-mode" aria-label="Switch to Electron Cloud mode">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12a15.3 15.3 0 0 1 10-4 15.3 15.3 0 0 1 10 4 15.3 15.3 0 0 1-10 4 15.3 15.3 0 0 1-10-4z"></path></svg>
-              Cloud
-            </button>
-            <span style="color: rgba(255,255,255,0.15)">|</span>
-            <button class="vis-btn active" id="btn-toggle-paths" aria-label="Toggle Orbit Paths">
-              Paths
-            </button>
-          </div>
-          <span class="visualizer-hint">Drag to Rotate | Scroll to Zoom</span>
+  <div class="controls">
+    <div class="ctrl-top">
+      <div class="search">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="search" type="text" placeholder="Search by name, symbol, or number…" autocomplete="off">
+      </div>
+      <div class="temp-wrap">
+        <span class="temp-lbl">Temperature:</span>
+        <div class="temp-inner">
+          <input id="temp" type="range" min="0" max="6000" value="298">
+          <span class="temp-val" id="temp-val">298 K</span>
         </div>
       </div>
+    </div>
+    <div class="filters" id="filters"></div>
+  </div>
 
-      <!-- Physical Properties Fact Sheets -->
-      <div class="facts-grid">
-        <div class="fact-card">
-          <label>Atomic Mass</label>
-          <span id="fact-mass">1.008</span><span class="unit">u</span>
-        </div>
-        <div class="fact-card">
-          <label>Density</label>
-          <span id="fact-density">0.000089</span><span class="unit" id="fact-density-unit">g/cm³</span>
-        </div>
-        <div class="fact-card">
-          <label>Melting Point</label>
-          <span id="fact-melt">14.01</span><span class="unit">K</span>
-        </div>
-        <div class="fact-card">
-          <label>Boiling Point</label>
-          <span id="fact-boil">20.28</span><span class="unit">K</span>
-        </div>
-        <div class="fact-card">
-          <label>Electronegativity</label>
-          <span id="fact-neg">2.20</span>
-        </div>
-        <div class="fact-card">
-          <label>State (STP)</label>
-          <span id="fact-state" style="text-transform: capitalize;">Gas</span>
-        </div>
+  <div class="pt-wrap">
+    <div class="pt-grid" id="pt-grid"></div>
+  </div>
+</div>
+
+<!-- Detail drawer -->
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="d-hdr">
+    <div class="d-left">
+      <div class="d-symbox" id="d-sym">H</div>
+      <div>
+        <div class="d-name" id="d-name">Hydrogen <span>#1</span></div>
+        <div class="d-cat" id="d-cat">Reactive Nonmetal</div>
       </div>
-
-      <!-- Element Description & Chemistry Facts -->
-      <div class="description-section">
-        <h3>Overview</h3>
-        <p id="drawer-description">Hydrogen is the first element on the periodic table and the most abundant chemical substance in the universe.</p>
+    </div>
+    <button class="close-btn" id="close-btn" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="d-body">
+    <div class="viewer">
+      <canvas id="atom-canvas"></canvas>
+      <span class="v-hint">Click &amp; Drag to Rotate</span>
+    </div>
+    <div class="facts">
+      <div class="fact"><label>Atomic Mass</label><span id="f-mass">—</span><span class="unit">u</span></div>
+      <div class="fact"><label>Density</label><span id="f-density">—</span><span class="unit" id="f-dunit">g/cm³</span></div>
+      <div class="fact"><label>Melting Pt.</label><span id="f-melt">—</span><span class="unit">K</span></div>
+      <div class="fact"><label>Boiling Pt.</label><span id="f-boil">—</span><span class="unit">K</span></div>
+      <div class="fact"><label>Electroneg.</label><span id="f-neg">—</span></div>
+      <div class="fact"><label>State (sim.)</label><span id="f-state">solid</span></div>
+    </div>
+    <div class="section">
+      <h3>Overview</h3>
+      <p id="d-desc">—</p>
+    </div>
+    <div class="section">
+      <h3>Electron Configuration</h3>
+      <p id="d-config" style="font-family:var(--font-d);font-weight:600;color:#d97706;margin-bottom:.5rem">—</p>
+      <div class="shells-box" id="d-shells"></div>
+    </div>
+    <div class="disc">
+      <div class="disc-l">
+        <label>Discovered By</label>
+        <span id="d-disc">—</span>
       </div>
-
-      <!-- Bohr Electron Shell Configuration List -->
-      <div class="description-section">
-        <h3>Electron Configuration</h3>
-        <p id="drawer-shell-config" style="font-family: var(--font-display); font-weight: 500; color: #d97706; margin-bottom: 0.5rem;">1s¹</p>
-        
-        <div class="shell-diagram-container">
-          <!-- Concentric rings list -->
-          <div class="shell-dots-list" id="drawer-shell-list">
-            <div class="shell-dot-item"><label>Shell 1 (K)</label><span>1 electron</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Discovery Details -->
-      <div class="discovery-card">
-        <div class="discovery-left">
-          <label>Discovered By</label>
-          <span id="drawer-discoverer">Henry Cavendish</span>
-        </div>
-        <div class="discovery-right" id="drawer-discover-year">
-          1766
-        </div>
-      </div>
-
+      <div class="disc-yr" id="d-year">—</div>
     </div>
   </div>
+</div>
 
-  <!-- Core Logic scripts -->
-  <script type="module" src="app.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// ELEMENT DATA
+// ═══════════════════════════════════════════════
+const ELEMENTS = [
+  {n:1,sym:"H",name:"Hydrogen",mass:1.008,cat:"reactive-nonmetal",shells:[1],period:1,group:1,mp:14.01,bp:20.28,den:0.00009,en:2.2,disc:"Henry Cavendish",yr:1766,sum:"The most abundant chemical substance in the Universe, making up about 75% of all normal matter.",cfg:"1s¹"},
+  {n:2,sym:"He",name:"Helium",mass:4.003,cat:"noble-gas",shells:[2],period:1,group:18,mp:0.95,bp:4.22,den:0.000179,en:null,disc:"Jansen & Lockyer",yr:1868,sum:"A colorless, odorless, inert gas that heads the noble gas series and is the second most abundant element.",cfg:"1s²"},
+  {n:3,sym:"Li",name:"Lithium",mass:6.94,cat:"alkali-metal",shells:[2,1],period:2,group:1,mp:453.69,bp:1615,den:0.534,en:0.98,disc:"Johan Arfwedson",yr:1817,sum:"The lightest metal and least dense solid element. Highly reactive and used in lithium-ion batteries.",cfg:"[He] 2s¹"},
+  {n:4,sym:"Be",name:"Beryllium",mass:9.012,cat:"alkaline-earth-metal",shells:[2,2],period:2,group:2,mp:1560,bp:2742,den:1.85,en:1.57,disc:"Louis Vauquelin",yr:1797,sum:"A relatively rare, stiff, lightweight metal used in aerospace structures and X-ray tubes.",cfg:"[He] 2s²"},
+  {n:5,sym:"B",name:"Boron",mass:10.81,cat:"metalloid",shells:[2,3],period:2,group:13,mp:2349,bp:4200,den:2.08,en:2.04,disc:"Gay-Lussac",yr:1808,sum:"A low-abundance metalloid used in fiberglass, ceramics, and semiconductor dopants.",cfg:"[He] 2s² 2p¹"},
+  {n:6,sym:"C",name:"Carbon",mass:12.011,cat:"reactive-nonmetal",shells:[2,4],period:2,group:14,mp:3823,bp:4300,den:2.267,en:2.55,disc:"Ancient",yr:"Unknown",sum:"The chemical basis of all known life, forming the backbone of organic molecules and polymers.",cfg:"[He] 2s² 2p²"},
+  {n:7,sym:"N",name:"Nitrogen",mass:14.007,cat:"reactive-nonmetal",shells:[2,5],period:2,group:15,mp:63.15,bp:77.36,den:0.00125,en:3.04,disc:"Daniel Rutherford",yr:1772,sum:"Makes up 78% of Earth's atmosphere and is essential for proteins, DNA, and fertilizers.",cfg:"[He] 2s² 2p³"},
+  {n:8,sym:"O",name:"Oxygen",mass:15.999,cat:"reactive-nonmetal",shells:[2,6],period:2,group:16,mp:54.36,bp:90.2,den:0.00143,en:3.44,disc:"Carl Scheele",yr:1771,sum:"Highly reactive nonmetal that drives aerobic respiration and forms oxides with most elements.",cfg:"[He] 2s² 2p⁴"},
+  {n:9,sym:"F",name:"Fluorine",mass:18.998,cat:"reactive-nonmetal",shells:[2,7],period:2,group:17,mp:53.48,bp:85.03,den:0.0017,en:3.98,disc:"André-Marie Ampère",yr:1810,sum:"The most electronegative element, extremely reactive and toxic in elemental form.",cfg:"[He] 2s² 2p⁵"},
+  {n:10,sym:"Ne",name:"Neon",mass:20.18,cat:"noble-gas",shells:[2,8],period:2,group:18,mp:24.56,bp:27.07,den:0.0009,en:null,disc:"Ramsay & Travers",yr:1898,sum:"Glows with a distinctive reddish-orange light in discharge tubes, used in neon signs.",cfg:"[He] 2s² 2p⁶"},
+  {n:11,sym:"Na",name:"Sodium",mass:22.99,cat:"alkali-metal",shells:[2,8,1],period:3,group:1,mp:370.87,bp:1156,den:0.968,en:0.93,disc:"Humphry Davy",yr:1807,sum:"Soft, silvery-white, highly reactive alkali metal. Essential electrolyte for life.",cfg:"[Ne] 3s¹"},
+  {n:12,sym:"Mg",name:"Magnesium",mass:24.305,cat:"alkaline-earth-metal",shells:[2,8,2],period:3,group:2,mp:923,bp:1363,den:1.738,en:1.31,disc:"Joseph Black",yr:1755,sum:"A shiny grey solid that burns with brilliant white light. Essential for chlorophyll in plants.",cfg:"[Ne] 3s²"},
+  {n:13,sym:"Al",name:"Aluminum",mass:26.982,cat:"post-transition-metal",shells:[2,8,3],period:3,group:13,mp:933.47,bp:2792,den:2.7,en:1.61,disc:"Hans Ørsted",yr:1824,sum:"Lightweight, non-magnetic, ductile metal; the most abundant metal in Earth's crust.",cfg:"[Ne] 3s² 3p¹"},
+  {n:14,sym:"Si",name:"Silicon",mass:28.085,cat:"metalloid",shells:[2,8,4],period:3,group:14,mp:1687,bp:3538,den:2.329,en:1.9,disc:"Jöns Berzelius",yr:1823,sum:"The foundation of modern semiconductor electronics and the second most abundant element in Earth's crust.",cfg:"[Ne] 3s² 3p²"},
+  {n:15,sym:"P",name:"Phosphorus",mass:30.974,cat:"reactive-nonmetal",shells:[2,8,5],period:3,group:15,mp:317.3,bp:553.6,den:1.823,en:2.19,disc:"Hennig Brand",yr:1669,sum:"Essential for DNA structure and energy transfer in ATP. Exists as red or white allotropes.",cfg:"[Ne] 3s² 3p³"},
+  {n:16,sym:"S",name:"Sulfur",mass:32.06,cat:"reactive-nonmetal",shells:[2,8,6],period:3,group:16,mp:388.36,bp:717.8,den:2.07,en:2.58,disc:"Ancient China",yr:"Pre-2000 BCE",sum:"Bright yellow crystalline solid historically known as brimstone, used in gunpowder and fertilizers.",cfg:"[Ne] 3s² 3p⁴"},
+  {n:17,sym:"Cl",name:"Chlorine",mass:35.45,cat:"reactive-nonmetal",shells:[2,8,7],period:3,group:17,mp:171.6,bp:239.11,den:0.0032,en:3.16,disc:"Carl Scheele",yr:1774,sum:"A pale yellow-green highly reactive gas, widely used as a disinfectant and in PVC production.",cfg:"[Ne] 3s² 3p⁵"},
+  {n:18,sym:"Ar",name:"Argon",mass:39.948,cat:"noble-gas",shells:[2,8,8],period:3,group:18,mp:83.8,bp:87.3,den:0.00178,en:null,disc:"Rayleigh & Ramsay",yr:1894,sum:"Third-most abundant gas in Earth's atmosphere, used as an inert shielding gas in welding.",cfg:"[Ne] 3s² 3p⁶"},
+  {n:19,sym:"K",name:"Potassium",mass:39.098,cat:"alkali-metal",shells:[2,8,8,1],period:4,group:1,mp:336.5,bp:1032,den:0.89,en:0.82,disc:"Humphry Davy",yr:1807,sum:"Silvery-white metal that reacts violently with water. Crucial for neuron and heart function.",cfg:"[Ar] 4s¹"},
+  {n:20,sym:"Ca",name:"Calcium",mass:40.078,cat:"alkaline-earth-metal",shells:[2,8,8,2],period:4,group:2,mp:1115,bp:1757,den:1.55,en:1.0,disc:"Humphry Davy",yr:1808,sum:"Essential element for bones, teeth, cellular signalling, and shell formation in marine life.",cfg:"[Ar] 4s²"},
+  {n:21,sym:"Sc",name:"Scandium",mass:44.956,cat:"transition-metal",shells:[2,8,9,2],period:4,group:3,mp:1814,bp:3109,den:2.985,en:1.36,disc:"Lars Nilson",yr:1879,sum:"A rare transition metal used in high-strength aluminium alloys for aerospace applications.",cfg:"[Ar] 3d¹ 4s²"},
+  {n:22,sym:"Ti",name:"Titanium",mass:47.867,cat:"transition-metal",shells:[2,8,10,2],period:4,group:4,mp:1941,bp:3560,den:4.506,en:1.54,disc:"William Gregor",yr:1791,sum:"Prized for its low density, extreme strength, and resistance to corrosion. Used in aircraft and implants.",cfg:"[Ar] 3d² 4s²"},
+  {n:23,sym:"V",name:"Vanadium",mass:50.942,cat:"transition-metal",shells:[2,8,11,2],period:4,group:5,mp:2183,bp:3680,den:6.11,en:1.63,disc:"Andrés del Río",yr:1801,sum:"Hard, ductile, silvery metal primarily used as an additive to strengthen steel alloys.",cfg:"[Ar] 3d³ 4s²"},
+  {n:24,sym:"Cr",name:"Chromium",mass:51.996,cat:"transition-metal",shells:[2,8,13,1],period:4,group:6,mp:2180,bp:2944,den:7.19,en:1.66,disc:"Louis Vauquelin",yr:1797,sum:"Steely-gray lustrous metal that takes a high polish, famous for decorative chrome plating.",cfg:"[Ar] 3d⁵ 4s¹"},
+  {n:25,sym:"Mn",name:"Manganese",mass:54.938,cat:"transition-metal",shells:[2,8,13,2],period:4,group:7,mp:1519,bp:2334,den:7.21,en:1.55,disc:"Carl Scheele",yr:1774,sum:"A metal critical for producing stainless and specialty steels; essential trace element for life.",cfg:"[Ar] 3d⁵ 4s²"},
+  {n:26,sym:"Fe",name:"Iron",mass:55.845,cat:"transition-metal",shells:[2,8,14,2],period:4,group:8,mp:1811,bp:3134,den:7.874,en:1.83,disc:"Ancient",yr:"Unknown",sum:"By mass the most common element on Earth, forming most of Earth's core and a key component of steel.",cfg:"[Ar] 3d⁶ 4s²"},
+  {n:27,sym:"Co",name:"Cobalt",mass:58.933,cat:"transition-metal",shells:[2,8,15,2],period:4,group:9,mp:1768,bp:3200,den:8.9,en:1.88,disc:"Georg Brandt",yr:1735,sum:"Lustrous magnetic metal used in superalloys and critically important for lithium-ion batteries.",cfg:"[Ar] 3d⁷ 4s²"},
+  {n:28,sym:"Ni",name:"Nickel",mass:58.693,cat:"transition-metal",shells:[2,8,16,2],period:4,group:10,mp:1728,bp:3186,den:8.908,en:1.91,disc:"Axel Cronstedt",yr:1751,sum:"Silvery-white lustrous metal, highly corrosion-resistant. Key component in coins and batteries.",cfg:"[Ar] 3d⁸ 4s²"},
+  {n:29,sym:"Cu",name:"Copper",mass:63.546,cat:"transition-metal",shells:[2,8,18,1],period:4,group:11,mp:1357.77,bp:2835,den:8.96,en:1.9,disc:"Ancient",yr:"9000 BCE",sum:"Soft, malleable metal with the highest thermal and electrical conductivity of any common metal.",cfg:"[Ar] 3d¹⁰ 4s¹"},
+  {n:30,sym:"Zn",name:"Zinc",mass:65.38,cat:"transition-metal",shells:[2,8,18,2],period:4,group:12,mp:692.68,bp:1180,den:7.14,en:1.65,disc:"Ancient",yr:"Pre-1000 BCE",sum:"Slightly brittle metal widely used for galvanizing steel and as a nutritional supplement.",cfg:"[Ar] 3d¹⁰ 4s²"},
+  {n:31,sym:"Ga",name:"Gallium",mass:69.723,cat:"post-transition-metal",shells:[2,8,18,3],period:4,group:13,mp:302.91,bp:2673,den:5.91,en:1.81,disc:"Lecoq de Boisbaudran",yr:1875,sum:"Has a melting point of just 29.76°C — it literally melts in the warmth of your hand.",cfg:"[Ar] 3d¹⁰ 4s² 4p¹"},
+  {n:32,sym:"Ge",name:"Germanium",mass:72.63,cat:"metalloid",shells:[2,8,18,4],period:4,group:14,mp:1211.4,bp:3106,den:5.323,en:2.01,disc:"Clemens Winkler",yr:1886,sum:"Lustrous, hard-brittle metalloid predicted by Mendeleev before its discovery. Used in semiconductors.",cfg:"[Ar] 3d¹⁰ 4s² 4p²"},
+  {n:33,sym:"As",name:"Arsenic",mass:74.922,cat:"metalloid",shells:[2,8,18,5],period:4,group:15,mp:1090,bp:887,den:5.727,en:2.18,disc:"Albertus Magnus",yr:1250,sum:"Infamous for extreme toxicity, historically used in poisons. Vital component of some semiconductors.",cfg:"[Ar] 3d¹⁰ 4s² 4p³"},
+  {n:34,sym:"Se",name:"Selenium",mass:78.971,cat:"reactive-nonmetal",shells:[2,8,18,6],period:4,group:16,mp:494,bp:958,den:4.81,en:2.55,disc:"Jöns Berzelius",yr:1817,sum:"A nonmetal that exhibits photovoltaic properties, converting light directly into electricity.",cfg:"[Ar] 3d¹⁰ 4s² 4p⁴"},
+  {n:35,sym:"Br",name:"Bromine",mass:79.904,cat:"reactive-nonmetal",shells:[2,8,18,7],period:4,group:17,mp:265.8,bp:332,den:3.1,en:2.96,disc:"Balard & Löwig",yr:1825,sum:"The only nonmetallic element that is liquid at room temperature, evaporating into a toxic red vapor.",cfg:"[Ar] 3d¹⁰ 4s² 4p⁵"},
+  {n:36,sym:"Kr",name:"Krypton",mass:83.798,cat:"noble-gas",shells:[2,8,18,8],period:4,group:18,mp:115.79,bp:119.93,den:0.00373,en:3.0,disc:"Ramsay & Travers",yr:1898,sum:"Noble gas used in high-speed photographic flashes and some high-efficiency fluorescent lamps.",cfg:"[Ar] 3d¹⁰ 4s² 4p⁶"},
+  {n:37,sym:"Rb",name:"Rubidium",mass:85.468,cat:"alkali-metal",shells:[2,8,18,8,1],period:5,group:1,mp:312.46,bp:961,den:1.532,en:0.82,disc:"Bunsen & Kirchhoff",yr:1861,sum:"Extremely soft, silvery-white alkali metal that ignites spontaneously in air.",cfg:"[Kr] 5s¹"},
+  {n:38,sym:"Sr",name:"Strontium",mass:87.62,cat:"alkaline-earth-metal",shells:[2,8,18,8,2],period:5,group:2,mp:1050,bp:1655,den:2.64,en:0.95,disc:"Adair Crawford",yr:1790,sum:"Highly reactive, burns with a brilliant crimson flame. Widely used in red fireworks and flares.",cfg:"[Kr] 5s²"},
+  {n:39,sym:"Y",name:"Yttrium",mass:88.906,cat:"transition-metal",shells:[2,8,18,9,2],period:5,group:3,mp:1799,bp:3609,den:4.472,en:1.22,disc:"Johan Gadolin",yr:1794,sum:"Silvery-metallic transition metal used in phosphors for white LED lights and camera lenses.",cfg:"[Kr] 4d¹ 5s²"},
+  {n:40,sym:"Zr",name:"Zirconium",mass:91.224,cat:"transition-metal",shells:[2,8,18,10,2],period:5,group:4,mp:2128,bp:4682,den:6.52,en:1.33,disc:"Martin Klaproth",yr:1789,sum:"Strong, lustrous metal resembling hafnium. Used extensively in nuclear reactor cladding.",cfg:"[Kr] 4d² 5s²"},
+  {n:41,sym:"Nb",name:"Niobium",mass:92.906,cat:"transition-metal",shells:[2,8,18,12,1],period:5,group:5,mp:2750,bp:5017,den:8.57,en:1.6,disc:"Charles Hatchett",yr:1801,sum:"Light grey crystalline metal, highly prized for producing superconducting alloys and special steels.",cfg:"[Kr] 4d⁴ 5s¹"},
+  {n:42,sym:"Mo",name:"Molybdenum",mass:95.95,cat:"transition-metal",shells:[2,8,18,13,1],period:5,group:6,mp:2896,bp:4912,den:10.28,en:2.16,disc:"Carl Scheele",yr:1778,sum:"Has one of the highest melting points of pure elements. Essential trace element for nitrogen fixation.",cfg:"[Kr] 4d⁵ 5s¹"},
+  {n:43,sym:"Tc",name:"Technetium",mass:98,cat:"transition-metal",shells:[2,8,18,13,2],period:5,group:7,mp:2430,bp:4538,den:11,en:1.9,disc:"Segrè & Perrier",yr:1937,sum:"The lightest element whose isotopes are all radioactive; virtually entirely synthetic.",cfg:"[Kr] 4d⁵ 5s²"},
+  {n:44,sym:"Ru",name:"Ruthenium",mass:101.07,cat:"transition-metal",shells:[2,8,18,15,1],period:5,group:8,mp:2607,bp:4423,den:12.45,en:2.2,disc:"Karl Ernst Claus",yr:1844,sum:"Rare platinum-group metal, highly inert to most chemicals. Used in wear-resistant electrical contacts.",cfg:"[Kr] 4d⁷ 5s¹"},
+  {n:45,sym:"Rh",name:"Rhodium",mass:102.91,cat:"transition-metal",shells:[2,8,18,16,1],period:5,group:9,mp:2237,bp:3968,den:12.41,en:2.28,disc:"William Wollaston",yr:1803,sum:"Extremely rare, valuable silvery-white noble metal. Critical for catalytic converters in cars.",cfg:"[Kr] 4d⁸ 5s¹"},
+  {n:46,sym:"Pd",name:"Palladium",mass:106.42,cat:"transition-metal",shells:[2,8,18,18],period:5,group:10,mp:1828,bp:3236,den:12.023,en:2.2,disc:"William Wollaston",yr:1803,sum:"Lustrous silvery metal that absorbs up to 900 times its volume of hydrogen at room temperature.",cfg:"[Kr] 4d¹⁰"},
+  {n:47,sym:"Ag",name:"Silver",mass:107.87,cat:"transition-metal",shells:[2,8,18,18,1],period:5,group:11,mp:1234.93,bp:2435,den:10.49,en:1.93,disc:"Prehistoric",yr:"Unknown",sum:"Highest electrical conductivity, thermal conductivity, and reflectivity of any pure metal.",cfg:"[Kr] 4d¹⁰ 5s¹"},
+  {n:48,sym:"Cd",name:"Cadmium",mass:112.41,cat:"transition-metal",shells:[2,8,18,18,2],period:5,group:12,mp:594.22,bp:1040,den:8.65,en:1.69,disc:"Stromeyer & Hermann",yr:1817,sum:"Soft, bluish-white metal. Highly toxic, but used in rechargeable nickel-cadmium batteries.",cfg:"[Kr] 4d¹⁰ 5s²"},
+  {n:49,sym:"In",name:"Indium",mass:114.82,cat:"post-transition-metal",shells:[2,8,18,18,3],period:5,group:13,mp:429.75,bp:2270,den:7.31,en:1.78,disc:"Reich & Richter",yr:1863,sum:"Very soft, malleable metal. Crucial for touchscreens when processed into Indium Tin Oxide (ITO).",cfg:"[Kr] 4d¹⁰ 5s² 5p¹"},
+  {n:50,sym:"Sn",name:"Tin",mass:118.71,cat:"post-transition-metal",shells:[2,8,18,18,4],period:5,group:14,mp:505.08,bp:2875,den:7.287,en:1.96,disc:"Ancient",yr:"3000 BCE",sum:"Silvery metal alloyed with copper to create bronze, ushering in the Bronze Age.",cfg:"[Kr] 4d¹⁰ 5s² 5p²"},
+  {n:51,sym:"Sb",name:"Antimony",mass:121.76,cat:"metalloid",shells:[2,8,18,18,5],period:5,group:15,mp:903.78,bp:1860,den:6.697,en:2.05,disc:"Ancient Egypt",yr:"Pre-3000 BCE",sum:"Lustrous gray metalloid found as stibnite ore. Used in flame-retardant compounds.",cfg:"[Kr] 4d¹⁰ 5s² 5p³"},
+  {n:52,sym:"Te",name:"Tellurium",mass:127.6,cat:"metalloid",shells:[2,8,18,18,6],period:5,group:16,mp:722.66,bp:1261,den:6.24,en:2.1,disc:"Franz Müller",yr:1782,sum:"Brittle, mildly toxic silvery metalloid. Extensively used in solar panels and thermoelectrics.",cfg:"[Kr] 4d¹⁰ 5s² 5p⁴"},
+  {n:53,sym:"I",name:"Iodine",mass:126.9,cat:"reactive-nonmetal",shells:[2,8,18,18,7],period:5,group:17,mp:386.85,bp:457.4,den:4.933,en:2.66,disc:"Bernard Courtois",yr:1811,sum:"Lustrous purple-black solid that sublimates into a violet gas. Essential for thyroid function.",cfg:"[Kr] 4d¹⁰ 5s² 5p⁵"},
+  {n:54,sym:"Xe",name:"Xenon",mass:131.29,cat:"noble-gas",shells:[2,8,18,18,8],period:5,group:18,mp:161.4,bp:165.03,den:0.00589,en:2.6,disc:"Ramsay & Travers",yr:1898,sum:"Extremely dense noble gas. Used in flash lamps, medical imaging, and ion thrusters for spacecraft.",cfg:"[Kr] 4d¹⁰ 5s² 5p⁶"},
+  {n:55,sym:"Cs",name:"Cesium",mass:132.91,cat:"alkali-metal",shells:[2,8,18,18,8,1],period:6,group:1,mp:301.59,bp:944,den:1.93,en:0.79,disc:"Bunsen & Kirchhoff",yr:1860,sum:"Soft gold-tinted alkali metal. The vibration of Cs-133 defines the standard SI 'second'.",cfg:"[Xe] 6s¹"},
+  {n:56,sym:"Ba",name:"Barium",mass:137.33,cat:"alkaline-earth-metal",shells:[2,8,18,18,8,2],period:6,group:2,mp:1000,bp:2170,den:3.51,en:0.89,disc:"Carl Scheele",yr:1772,sum:"Soft, silvery alkaline earth metal. Never found free in nature due to high reactivity.",cfg:"[Xe] 6s²"},
+  {n:57,sym:"La",name:"Lanthanum",mass:138.91,cat:"lanthanide",shells:[2,8,18,18,9,2],period:6,group:null,mp:1193,bp:3737,den:6.162,en:1.1,disc:"Carl Mosander",yr:1839,sum:"The prototype of the lanthanide series. Highly malleable and soft enough to be cut with a knife.",cfg:"[Xe] 5d¹ 6s²"},
+  {n:58,sym:"Ce",name:"Cerium",mass:140.12,cat:"lanthanide",shells:[2,8,18,19,9,2],period:6,group:null,mp:1068,bp:3716,den:6.77,en:1.12,disc:"Martin Klaproth",yr:1803,sum:"Soft, ductile, silvery metal that oxidises fast in air. Major sparker component in lighters.",cfg:"[Xe] 4f¹ 5d¹ 6s²"},
+  {n:59,sym:"Pr",name:"Praseodymium",mass:140.91,cat:"lanthanide",shells:[2,8,18,21,8,2],period:6,group:null,mp:1208,bp:3793,den:6.77,en:1.13,disc:"Carl von Welsbach",yr:1885,sum:"Soft, ductile metal famous for creating brilliant yellow colors in specialty glass and goggles.",cfg:"[Xe] 4f³ 6s²"},
+  {n:60,sym:"Nd",name:"Neodymium",mass:144.24,cat:"lanthanide",shells:[2,8,18,22,8,2],period:6,group:null,mp:1297,bp:3347,den:7.01,en:1.14,disc:"Carl von Welsbach",yr:1885,sum:"Used to manufacture the strongest permanent magnets commercially available.",cfg:"[Xe] 4f⁴ 6s²"},
+  {n:61,sym:"Pm",name:"Promethium",mass:145,cat:"lanthanide",shells:[2,8,18,23,8,2],period:6,group:null,mp:1315,bp:3273,den:7.26,en:1.13,disc:"Marinsky et al.",yr:1945,sum:"Extremely rare radioactive element. All isotopes are unstable and decay via beta emission.",cfg:"[Xe] 4f⁵ 6s²"},
+  {n:62,sym:"Sm",name:"Samarium",mass:150.36,cat:"lanthanide",shells:[2,8,18,24,8,2],period:6,group:null,mp:1347,bp:2067,den:7.52,en:1.17,disc:"Lecoq de Boisbaudran",yr:1879,sum:"Silvery metal used in high-temperature Sm-Co magnets and as a neutron absorber in reactors.",cfg:"[Xe] 4f⁶ 6s²"},
+  {n:63,sym:"Eu",name:"Europium",mass:151.96,cat:"lanthanide",shells:[2,8,18,25,8,2],period:6,group:null,mp:1099,bp:1802,den:5.264,en:1.2,disc:"Eugène Demarçay",yr:1901,sum:"The most reactive lanthanide; glows with bright red in cathode ray phosphors and euro banknotes.",cfg:"[Xe] 4f⁷ 6s²"},
+  {n:64,sym:"Gd",name:"Gadolinium",mass:157.25,cat:"lanthanide",shells:[2,8,18,25,9,2],period:6,group:null,mp:1585,bp:3546,den:7.9,en:1.2,disc:"Jean de Marignac",yr:1880,sum:"Exceptionally high neutron absorption. Widely used as a contrast agent in MRI scans.",cfg:"[Xe] 4f⁷ 5d¹ 6s²"},
+  {n:65,sym:"Tb",name:"Terbium",mass:158.93,cat:"lanthanide",shells:[2,8,18,27,8,2],period:6,group:null,mp:1629,bp:3503,den:8.23,en:1.1,disc:"Carl Mosander",yr:1843,sum:"Silvery-gray rare earth that can be cut with a knife. Used in solid-state devices and actuators.",cfg:"[Xe] 4f⁹ 6s²"},
+  {n:66,sym:"Dy",name:"Dysprosium",mass:162.5,cat:"lanthanide",shells:[2,8,18,28,8,2],period:6,group:null,mp:1680,bp:2840,den:8.54,en:1.22,disc:"Lecoq de Boisbaudran",yr:1886,sum:"Extremely magnetic at low temperatures. Used in neodymium magnets to prevent demagnetization.",cfg:"[Xe] 4f¹⁰ 6s²"},
+  {n:67,sym:"Ho",name:"Holmium",mass:164.93,cat:"lanthanide",shells:[2,8,18,29,8,2],period:6,group:null,mp:1734,bp:2993,den:8.79,en:1.23,disc:"Marc Delafontaine",yr:1878,sum:"Possesses the highest magnetic moment of any element on the periodic table.",cfg:"[Xe] 4f¹¹ 6s²"},
+  {n:68,sym:"Er",name:"Erbium",mass:167.26,cat:"lanthanide",shells:[2,8,18,30,8,2],period:6,group:null,mp:1802,bp:3141,den:9.066,en:1.24,disc:"Carl Mosander",yr:1843,sum:"Silvery-white solid used as a signal amplifier in fiber-optic communications (EDFA).",cfg:"[Xe] 4f¹² 6s²"},
+  {n:69,sym:"Tm",name:"Thulium",mass:168.93,cat:"lanthanide",shells:[2,8,18,31,8,2],period:6,group:null,mp:1818,bp:2223,den:9.32,en:1.25,disc:"Per Cleve",yr:1879,sum:"The second-least abundant lanthanide. Used in portable medical X-ray equipment.",cfg:"[Xe] 4f¹³ 6s²"},
+  {n:70,sym:"Yb",name:"Ytterbium",mass:173.05,cat:"lanthanide",shells:[2,8,18,32,8,2],period:6,group:null,mp:1097,bp:1469,den:6.9,en:1.1,disc:"Jean de Marignac",yr:1878,sum:"Soft, malleable lanthanide. Used in ultra-precise atomic clocks and high-stress sensors.",cfg:"[Xe] 4f¹⁴ 6s²"},
+  {n:71,sym:"Lu",name:"Lutetium",mass:174.97,cat:"lanthanide",shells:[2,8,18,32,9,2],period:6,group:3,mp:1925,bp:3675,den:9.841,en:1.27,disc:"Georges Urbain",yr:1907,sum:"The densest and hardest lanthanide; the most expensive and difficult to isolate.",cfg:"[Xe] 4f¹⁴ 5d¹ 6s²"},
+  {n:72,sym:"Hf",name:"Hafnium",mass:178.49,cat:"transition-metal",shells:[2,8,18,32,10,2],period:6,group:4,mp:2506,bp:4876,den:13.31,en:1.3,disc:"Coster & Hevesy",yr:1923,sum:"Lustrous silvery-grey metal that absorbs neutrons effectively; used in nuclear control rods.",cfg:"[Xe] 4f¹⁴ 5d² 6s²"},
+  {n:73,sym:"Ta",name:"Tantalum",mass:180.95,cat:"transition-metal",shells:[2,8,18,32,11,2],period:6,group:5,mp:3290,bp:5731,den:16.69,en:1.5,disc:"Anders Ekeberg",yr:1802,sum:"Highly corrosion-resistant, blue-grey metal critical for high-capacitance miniature capacitors.",cfg:"[Xe] 4f¹⁴ 5d³ 6s²"},
+  {n:74,sym:"W",name:"Tungsten",mass:183.84,cat:"transition-metal",shells:[2,8,18,32,12,2],period:6,group:6,mp:3695,bp:6203,den:19.25,en:2.36,disc:"Carl Scheele",yr:1781,sum:"Has the highest melting point of all elements. Also known as Wolfram, used in lightbulb filaments.",cfg:"[Xe] 4f¹⁴ 5d⁴ 6s²"},
+  {n:75,sym:"Re",name:"Rhenium",mass:186.21,cat:"transition-metal",shells:[2,8,18,32,13,2],period:6,group:7,mp:3459,bp:5869,den:21.02,en:1.9,disc:"Noddack & Tacke",yr:1925,sum:"Extremely rare transition metal with high density. Used heavily in jet engine turbine blades.",cfg:"[Xe] 4f¹⁴ 5d⁵ 6s²"},
+  {n:76,sym:"Os",name:"Osmium",mass:190.23,cat:"transition-metal",shells:[2,8,18,32,14,2],period:6,group:8,mp:3306,bp:5285,den:22.59,en:2.2,disc:"Smithson Tennant",yr:1803,sum:"The densest naturally occurring element. Extremely hard, brittle, blue-gray platinum-group metal.",cfg:"[Xe] 4f¹⁴ 5d⁶ 6s²"},
+  {n:77,sym:"Ir",name:"Iridium",mass:192.22,cat:"transition-metal",shells:[2,8,18,32,15,2],period:6,group:9,mp:2719,bp:4701,den:22.56,en:2.2,disc:"Smithson Tennant",yr:1803,sum:"The second-densest element, famous for its high concentration at the KT boundary (asteroid impact).",cfg:"[Xe] 4f¹⁴ 5d⁷ 6s²"},
+  {n:78,sym:"Pt",name:"Platinum",mass:195.08,cat:"transition-metal",shells:[2,8,18,32,17,1],period:6,group:10,mp:2041.4,bp:4098,den:21.45,en:2.28,disc:"Antonio de Ulloa",yr:1735,sum:"Precious, ductile, dense noble metal. Heavily used in vehicle catalytic converters and jewelry.",cfg:"[Xe] 4f¹⁴ 5d⁹ 6s¹"},
+  {n:79,sym:"Au",name:"Gold",mass:196.97,cat:"transition-metal",shells:[2,8,18,32,18,1],period:6,group:11,mp:1337.33,bp:3129,den:19.3,en:2.54,disc:"Ancient",yr:"Pre-3000 BCE",sum:"Highly prized precious metal since antiquity. Extremely malleable and an excellent conductor.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s¹"},
+  {n:80,sym:"Hg",name:"Mercury",mass:200.59,cat:"transition-metal",shells:[2,8,18,32,18,2],period:6,group:12,mp:234.32,bp:629.88,den:13.534,en:2.0,disc:"Ancient Egyptians",yr:"1500 BCE",sum:"A heavy, silvery liquid metal at room temperature, historically named quicksilver. Extremely toxic.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s²"},
+  {n:81,sym:"Tl",name:"Thallium",mass:204.38,cat:"post-transition-metal",shells:[2,8,18,32,18,3],period:6,group:13,mp:577,bp:1746,den:11.85,en:1.62,disc:"William Crookes",yr:1861,sum:"Soft, highly toxic metal that tarnishes instantly in air. Formerly popular as a rodenticide.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹"},
+  {n:82,sym:"Pb",name:"Lead",mass:207.2,cat:"post-transition-metal",shells:[2,8,18,32,18,4],period:6,group:14,mp:600.61,bp:2022,den:11.34,en:2.33,disc:"Ancient",yr:"7000 BCE",sum:"Heavy, soft, highly malleable metal, toxic to humans but historically used in pipes and batteries.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²"},
+  {n:83,sym:"Bi",name:"Bismuth",mass:208.98,cat:"post-transition-metal",shells:[2,8,18,32,18,5],period:6,group:15,mp:544.7,bp:1837,den:9.78,en:2.02,disc:"Claude Geoffroy",yr:1753,sum:"Brittle metal with an iridescent oxidised surface showing beautiful stair-step crystal patterns.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³"},
+  {n:84,sym:"Po",name:"Polonium",mass:209,cat:"post-transition-metal",shells:[2,8,18,32,18,6],period:6,group:16,mp:527,bp:1235,den:9.196,en:2.0,disc:"Marie & Pierre Curie",yr:1898,sum:"Rare and highly radioactive element, emitting extremely intense alpha radiation.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴"},
+  {n:85,sym:"At",name:"Astatine",mass:210,cat:"metalloid",shells:[2,8,18,32,18,7],period:6,group:17,mp:575,bp:610,den:6.2,en:2.2,disc:"Corson, MacKenzie & Segrè",yr:1940,sum:"The rarest naturally occurring element on Earth. Total crustal abundance under 1 gram at any time.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵"},
+  {n:86,sym:"Rn",name:"Radon",mass:222,cat:"noble-gas",shells:[2,8,18,32,18,8],period:6,group:18,mp:202,bp:211.3,den:0.00973,en:2.2,disc:"Rutherford / Dorn",yr:1899,sum:"Radioactive noble gas that occurs naturally through uranium decay in soils and rocks.",cfg:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶"},
+  {n:87,sym:"Fr",name:"Francium",mass:223,cat:"alkali-metal",shells:[2,8,18,32,18,8,1],period:7,group:1,mp:300,bp:950,den:1.87,en:0.79,disc:"Marguerite Perey",yr:1939,sum:"Extremely radioactive alkali metal. Second rarest element in Earth's crust after astatine.",cfg:"[Rn] 7s¹"},
+  {n:88,sym:"Ra",name:"Radium",mass:226,cat:"alkaline-earth-metal",shells:[2,8,18,32,18,8,2],period:7,group:2,mp:973,bp:2010,den:5.5,en:0.9,disc:"Marie & Pierre Curie",yr:1898,sum:"Extremely radioactive, luminesces pale blue. Famous for its use in glowing watch dials.",cfg:"[Rn] 7s²"},
+  {n:89,sym:"Ac",name:"Actinium",mass:227,cat:"actinide",shells:[2,8,18,32,18,9,2],period:7,group:null,mp:1323,bp:3471,den:10.07,en:1.1,disc:"Friedrich Giesel",yr:1902,sum:"Radioactive, soft, silvery-white metal that glows in the dark with an eerie blue light.",cfg:"[Rn] 6d¹ 7s²"},
+  {n:90,sym:"Th",name:"Thorium",mass:232.04,cat:"actinide",shells:[2,8,18,32,18,10,2],period:7,group:null,mp:2023,bp:5061,den:11.724,en:1.3,disc:"Jöns Berzelius",yr:1829,sum:"Weakly radioactive metal researched as a safer alternative fuel to uranium in reactors.",cfg:"[Rn] 6d² 7s²"},
+  {n:91,sym:"Pa",name:"Protactinium",mass:231.04,cat:"actinide",shells:[2,8,18,32,20,9,2],period:7,group:null,mp:1841,bp:4300,den:15.37,en:1.5,disc:"Soddy, Cranston & Hahn",yr:1913,sum:"Dense, radioactive metal belonging to the actinides. Highly toxic due to its radioactivity.",cfg:"[Rn] 5f² 6d¹ 7s²"},
+  {n:92,sym:"U",name:"Uranium",mass:238.03,cat:"actinide",shells:[2,8,18,32,21,9,2],period:7,group:null,mp:1405,bp:4404,den:19.05,en:1.38,disc:"Martin Klaproth",yr:1789,sum:"Weakly radioactive, highly dense metal. Primary fuel source for nuclear power stations.",cfg:"[Rn] 5f³ 6d¹ 7s²"},
+  {n:93,sym:"Np",name:"Neptunium",mass:237,cat:"actinide",shells:[2,8,18,32,22,9,2],period:7,group:null,mp:917,bp:4273,den:20.45,en:1.36,disc:"McMillan & Abelson",yr:1940,sum:"The first transuranium element synthesized. Highly radioactive and extremely dense.",cfg:"[Rn] 5f⁴ 6d¹ 7s²"},
+  {n:94,sym:"Pu",name:"Plutonium",mass:244,cat:"actinide",shells:[2,8,18,32,24,8,2],period:7,group:null,mp:912.5,bp:3501,den:19.816,en:1.28,disc:"Glenn Seaborg",yr:1940,sum:"Fissile actinide metal synthesized from uranium. Key component in nuclear weapons and RTGs.",cfg:"[Rn] 5f⁶ 7s²"},
+  {n:95,sym:"Am",name:"Americium",mass:243,cat:"actinide",shells:[2,8,18,32,25,8,2],period:7,group:null,mp:1449,bp:2880,den:12,en:1.3,disc:"Glenn Seaborg",yr:1944,sum:"Transuranic synthetic element, commonly utilized in household ionization smoke detectors.",cfg:"[Rn] 5f⁷ 7s²"},
+  {n:96,sym:"Cm",name:"Curium",mass:247,cat:"actinide",shells:[2,8,18,32,25,9,2],period:7,group:null,mp:1613,bp:3383,den:13.51,en:1.3,disc:"Glenn Seaborg",yr:1944,sum:"Highly radioactive synthetic element named in honor of Marie and Pierre Curie.",cfg:"[Rn] 5f⁷ 6d¹ 7s²"},
+  {n:97,sym:"Bk",name:"Berkelium",mass:247,cat:"actinide",shells:[2,8,18,32,27,8,2],period:7,group:null,mp:1259,bp:2900,den:14.78,en:1.3,disc:"Seaborg, Thompson & Ghiorso",yr:1949,sum:"Synthetic element named after Berkeley, California, the site of its creation.",cfg:"[Rn] 5f⁹ 7s²"},
+  {n:98,sym:"Cf",name:"Californium",mass:251,cat:"actinide",shells:[2,8,18,32,28,8,2],period:7,group:null,mp:1173,bp:1743,den:15.1,en:1.3,disc:"Seaborg & Ghiorso",yr:1950,sum:"A strong neutron emitter, used in metal detectors and to start up nuclear reactors.",cfg:"[Rn] 5f¹⁰ 7s²"},
+  {n:99,sym:"Es",name:"Einsteinium",mass:252,cat:"actinide",shells:[2,8,18,32,29,8,2],period:7,group:null,mp:1133,bp:null,den:8.84,en:1.3,disc:"Albert Ghiorso et al.",yr:1952,sum:"Discovered in the radioactive debris of the first thermonuclear bomb explosion (Ivy Mike).",cfg:"[Rn] 5f¹¹ 7s²"},
+  {n:100,sym:"Fm",name:"Fermium",mass:257,cat:"actinide",shells:[2,8,18,32,30,8,2],period:7,group:null,mp:1800,bp:null,den:null,en:1.3,disc:"Albert Ghiorso et al.",yr:1952,sum:"The heaviest element that can be formed by neutron bombardment of lighter elements.",cfg:"[Rn] 5f¹² 7s²"},
+  {n:101,sym:"Md",name:"Mendelevium",mass:258,cat:"actinide",shells:[2,8,18,32,31,8,2],period:7,group:null,mp:1100,bp:null,den:null,en:1.3,disc:"Albert Ghiorso et al.",yr:1955,sum:"Named to honor Dmitri Mendeleev, the father of the periodic table.",cfg:"[Rn] 5f¹³ 7s²"},
+  {n:102,sym:"No",name:"Nobelium",mass:259,cat:"actinide",shells:[2,8,18,32,32,8,2],period:7,group:null,mp:1100,bp:null,den:null,en:1.3,disc:"Dubna & Berkeley",yr:1966,sum:"Synthetic radioactive element, named after Alfred Nobel, inventor of dynamite.",cfg:"[Rn] 5f¹⁴ 7s²"},
+  {n:103,sym:"Lr",name:"Lawrencium",mass:266,cat:"actinide",shells:[2,8,18,32,32,9,2],period:7,group:3,mp:1900,bp:null,den:null,en:1.3,disc:"Albert Ghiorso et al.",yr:1961,sum:"Named after Ernest Lawrence, inventor of the cyclotron. Highly radioactive synthetic metal.",cfg:"[Rn] 5f¹⁴ 7s² 7p¹"},
+  {n:104,sym:"Rf",name:"Rutherfordium",mass:267,cat:"transition-metal",shells:[2,8,18,32,32,10,2],period:7,group:4,mp:2400,bp:5800,den:23.2,en:null,disc:"Dubna & Berkeley",yr:1964,sum:"Highly radioactive synthetic element with an extremely short half-life of seconds.",cfg:"[Rn] 5f¹⁴ 6d² 7s²"},
+  {n:105,sym:"Db",name:"Dubnium",mass:268,cat:"transition-metal",shells:[2,8,18,32,32,11,2],period:7,group:5,mp:null,bp:null,den:29.3,en:null,disc:"Dubna & Berkeley",yr:1967,sum:"Synthetic element named after Dubna, Russia, where it was first synthesized.",cfg:"[Rn] 5f¹⁴ 6d³ 7s²"},
+  {n:106,sym:"Sg",name:"Seaborgium",mass:269,cat:"transition-metal",shells:[2,8,18,32,32,12,2],period:7,group:6,mp:null,bp:null,den:35.0,en:null,disc:"Lawrence Berkeley Lab",yr:1974,sum:"Named after Glenn Seaborg — the first time an element was named for a living person.",cfg:"[Rn] 5f¹⁴ 6d⁴ 7s²"},
+  {n:107,sym:"Bh",name:"Bohrium",mass:270,cat:"transition-metal",shells:[2,8,18,32,32,13,2],period:7,group:7,mp:null,bp:null,den:37.1,en:null,disc:"GSI Darmstadt",yr:1981,sum:"Named after Niels Bohr. Highly radioactive synthetic metal that decays in milliseconds.",cfg:"[Rn] 5f¹⁴ 6d⁵ 7s²"},
+  {n:108,sym:"Hs",name:"Hassium",mass:269,cat:"transition-metal",shells:[2,8,18,32,32,14,2],period:7,group:8,mp:null,bp:null,den:40.7,en:null,disc:"GSI Darmstadt",yr:1984,sum:"Synthetic element named after the German state of Hesse. Highly unstable and radioactive.",cfg:"[Rn] 5f¹⁴ 6d⁶ 7s²"},
+  {n:109,sym:"Mt",name:"Meitnerium",mass:278,cat:"transition-metal",shells:[2,8,18,32,32,15,2],period:7,group:9,mp:null,bp:null,den:37.4,en:null,disc:"GSI Darmstadt",yr:1982,sum:"Named to honor physicist Lise Meitner, co-discoverer of nuclear fission.",cfg:"[Rn] 5f¹⁴ 6d⁷ 7s²"},
+  {n:110,sym:"Ds",name:"Darmstadtium",mass:281,cat:"transition-metal",shells:[2,8,18,32,32,16,2],period:7,group:10,mp:null,bp:null,den:34.8,en:null,disc:"GSI Darmstadt",yr:1994,sum:"Extremely radioactive synthetic element, decays through alpha emission in milliseconds.",cfg:"[Rn] 5f¹⁴ 6d⁸ 7s²"},
+  {n:111,sym:"Rg",name:"Roentgenium",mass:282,cat:"transition-metal",shells:[2,8,18,32,32,17,2],period:7,group:11,mp:null,bp:null,den:28.7,en:null,disc:"GSI Darmstadt",yr:1994,sum:"Named after Wilhelm Röntgen, discoverer of X-rays. Extremely short-lived synthetic element.",cfg:"[Rn] 5f¹⁴ 6d⁹ 7s²"},
+  {n:112,sym:"Cn",name:"Copernicium",mass:285,cat:"transition-metal",shells:[2,8,18,32,32,18,2],period:7,group:12,mp:283,bp:340,den:23.7,en:null,disc:"GSI Darmstadt",yr:1996,sum:"Named after Nicolaus Copernicus. Extremely volatile and radioactive synthetic element.",cfg:"[Rn] 5f¹⁴ 6d¹⁰ 7s²"},
+  {n:113,sym:"Nh",name:"Nihonium",mass:286,cat:"post-transition-metal",shells:[2,8,18,32,32,18,3],period:7,group:13,mp:700,bp:1400,den:16,en:null,disc:"RIKEN (Japan)",yr:2004,sum:"First element discovered in Asia, named after Nihon (Japan).",cfg:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹"},
+  {n:114,sym:"Fl",name:"Flerovium",mass:289,cat:"post-transition-metal",shells:[2,8,18,32,32,18,4],period:7,group:14,mp:200,bp:380,den:14,en:null,disc:"Dubna Lab",yr:1998,sum:"Named after the Flerov Laboratory where superheavy elements are synthesized.",cfg:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²"},
+  {n:115,sym:"Mc",name:"Moscovium",mass:290,cat:"post-transition-metal",shells:[2,8,18,32,32,18,5],period:7,group:15,mp:670,bp:1400,den:13.5,en:null,disc:"Dubna & Livermore",yr:2003,sum:"Extremely radioactive synthetic element, named after Moscow Oblast, Russia.",cfg:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³"},
+  {n:116,sym:"Lv",name:"Livermorium",mass:293,cat:"post-transition-metal",shells:[2,8,18,32,32,18,6],period:7,group:16,mp:700,bp:1100,den:12.9,en:null,disc:"Dubna & Livermore",yr:2000,sum:"Named to honor Lawrence Livermore National Laboratory in California.",cfg:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴"},
+  {n:117,sym:"Ts",name:"Tennessine",mass:294,cat:"metalloid",shells:[2,8,18,32,32,18,7],period:7,group:17,mp:650,bp:880,den:7.2,en:null,disc:"Dubna & Oak Ridge",yr:2010,sum:"Named after Tennessee. Highly radioactive synthetic element with very short half-life.",cfg:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵"},
+  {n:118,sym:"Og",name:"Oganesson",mass:294,cat:"noble-gas",shells:[2,8,18,32,32,18,8],period:7,group:18,mp:325,bp:350,den:5.0,en:null,disc:"Dubna & Livermore",yr:2002,sum:"Named after Yuri Oganessian. The highest atomic number and mass element on the table.",cfg:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶"}
+];
 
+// ═══════════════════════════════════════════════
+// COLORS & MAPS
+// ═══════════════════════════════════════════════
+const CAT_COLORS = {
+  "reactive-nonmetal":    "#0ea5e9",
+  "noble-gas":            "#ec4899",
+  "alkali-metal":         "#ef4444",
+  "alkaline-earth-metal": "#f97316",
+  "metalloid":            "#eab308",
+  "post-transition-metal":"#10b981",
+  "transition-metal":     "#3b82f6",
+  "lanthanide":           "#8b5cf6",
+  "actinide":             "#d946ef"
+};
+const CAT_LABELS = {
+  "reactive-nonmetal":    "Reactive Nonmetals",
+  "noble-gas":            "Noble Gases",
+  "alkali-metal":         "Alkali Metals",
+  "alkaline-earth-metal": "Alkaline Earths",
+  "metalloid":            "Metalloids",
+  "post-transition-metal":"Post-Transition",
+  "transition-metal":     "Transition Metals",
+  "lanthanide":           "Lanthanides",
+  "actinide":             "Actinides"
+};
+const STATE_COLORS = {solid:"#94a3b8",liquid:"#38bdf8",gas:"#a855f7",synthetic:"#f59e0b"};
+
+// ═══════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════
+const S = {temp:298, cat:null, query:"", el:null};
+
+// ═══════════════════════════════════════════════
+// DOM REFS
+// ═══════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const grid = $('pt-grid');
+const filtersEl = $('filters');
+const searchEl = $('search');
+const tempEl = $('temp');
+const tempValEl = $('temp-val');
+const overlay = $('overlay');
+const drawer = $('drawer');
+const closeBtn = $('close-btn');
+
+// ═══════════════════════════════════════════════
+// CATEGORY FILTERS
+// ═══════════════════════════════════════════════
+function renderFilters() {
+  // All button
+  const all = document.createElement('button');
+  all.className = 'fbtn';
+  all.textContent = 'All Elements';
+  all.id = 'fbtn-all';
+  all.style.cssText = 'background:#3b82f6;border-color:#3b82f6;color:#fff';
+  all.addEventListener('click', () => setCategory(null, all));
+  filtersEl.appendChild(all);
+
+  Object.keys(CAT_LABELS).forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'fbtn';
+    btn.textContent = CAT_LABELS[key];
+    btn.dataset.cat = key;
+    btn.addEventListener('click', () => setCategory(key, btn));
+    filtersEl.appendChild(btn);
+  });
+}
+
+function setCategory(cat, btn) {
+  S.cat = cat;
+  document.querySelectorAll('.fbtn').forEach(b => {
+    b.style.cssText = '';
+  });
+  const c = cat ? CAT_COLORS[cat] : '#3b82f6';
+  btn.style.cssText = `background:${c};border-color:${c};color:#fff`;
+  applyFilters();
+}
+
+// ═══════════════════════════════════════════════
+// PERIODIC TABLE GRID
+// ═══════════════════════════════════════════════
+function renderGrid() {
+  grid.innerHTML = '';
+
+  // Lanthanide placeholder at row 6 col 3
+  const lp = makeCard(null, 6, 3, 'lanthanide', '57–71', 'La-Lu', 'Lanthanides');
+  grid.appendChild(lp);
+
+  // Actinide placeholder at row 7 col 3
+  const ap = makeCard(null, 7, 3, 'actinide', '89–103', 'Ac-Lr', 'Actinides');
+  grid.appendChild(ap);
+
+  // Spacer row 8
+  const sp = document.createElement('div');
+  sp.className = 'la-spacer';
+  sp.style.gridRow = '8';
+  sp.style.gridColumn = '1 / span 18';
+  grid.appendChild(sp);
+
+  // All elements
+  ELEMENTS.forEach(el => {
+    let row = el.period;
+    let col = el.group;
+    if (el.n >= 57 && el.n <= 71) { row = 9; col = el.n - 57 + 4; }
+    else if (el.n >= 89 && el.n <= 103) { row = 10; col = el.n - 89 + 4; }
+
+    const card = document.createElement('div');
+    card.className = 'ecard';
+    card.id = `el-${el.n}`;
+    card.style.gridRow = row;
+    card.style.gridColumn = col;
+    const c = CAT_COLORS[el.cat] || '#94a3b8';
+    card.style.setProperty('--stripe', c);
+    card.innerHTML = `
+      <div class="ehdr">
+        <span class="enum">${el.n}</span>
+        <div class="sbadge" id="sb-${el.n}" style="background:${STATE_COLORS.solid};box-shadow:0 0 5px ${STATE_COLORS.solid}"></div>
+      </div>
+      <div class="esym">${el.sym}</div>
+      <div class="eftr">
+        <span class="ename">${el.name}</span>
+        <span class="emass">${el.mass.toFixed ? el.mass.toFixed(2) : el.mass}</span>
+      </div>`;
+    card.addEventListener('click', () => openDetail(el));
+    grid.appendChild(card);
+  });
+
+  updateStates();
+}
+
+function makeCard(el, row, col, cat, num, sym, name) {
+  const card = document.createElement('div');
+  card.className = 'ecard ph';
+  card.style.gridRow = row;
+  card.style.gridColumn = col;
+  const c = CAT_COLORS[cat] || '#94a3b8';
+  card.style.setProperty('--stripe', c);
+  card.innerHTML = `
+    <div class="ehdr"><span class="enum" style="font-size:.55rem">${num}</span></div>
+    <div class="esym" style="font-size:1rem;color:var(--txt2)">${sym}</div>
+    <div class="eftr"><span class="ename">${name}</span></div>`;
+  return card;
+}
+
+// ═══════════════════════════════════════════════
+// TEMPERATURE / STATES
+// ═══════════════════════════════════════════════
+function getState(el, temp) {
+  if (el.mp === null && el.bp === null) return 'synthetic';
+  if (temp < el.mp) return 'solid';
+  if (el.bp === null || temp < el.bp) return 'liquid';
+  return 'gas';
+}
+
+function updateStates() {
+  let counts = {solid:0, liquid:0, gas:0, synthetic:0};
+  ELEMENTS.forEach(el => {
+    const st = getState(el, S.temp);
+    counts[st]++;
+    const badge = $(`sb-${el.n}`);
+    if (badge) {
+      const c = STATE_COLORS[st];
+      badge.style.background = c;
+      badge.style.boxShadow = `0 0 5px ${c}`;
+    }
+  });
+  $('s-solid').textContent = counts.solid;
+  $('s-liquid').textContent = counts.liquid;
+  $('s-gas').textContent = counts.gas;
+  $('s-synth').textContent = counts.synthetic;
+  tempValEl.textContent = `${S.temp} K | ${Math.round(S.temp - 273.15)}°C`;
+}
+
+// ═══════════════════════════════════════════════
+// FILTER / SEARCH
+// ═══════════════════════════════════════════════
+function applyFilters() {
+  const q = S.query.toLowerCase().trim();
+  ELEMENTS.forEach(el => {
+    const card = $(`el-${el.n}`);
+    if (!card) return;
+    const matchQ = !q || el.name.toLowerCase().includes(q) || el.sym.toLowerCase().includes(q) || String(el.n) === q;
+    const matchC = !S.cat || el.cat === S.cat;
+    card.classList.toggle('dim', !(matchQ && matchC));
+  });
+}
+
+// ═══════════════════════════════════════════════
+// DETAIL DRAWER
+// ═══════════════════════════════════════════════
+function openDetail(el) {
+  S.el = el;
+  const c = CAT_COLORS[el.cat] || '#3b82f6';
+
+  // Header
+  const sym = $('d-sym');
+  sym.textContent = el.sym;
+  sym.style.borderColor = c;
+  sym.style.boxShadow = `0 0 18px ${c}55`;
+  sym.style.color = c;
+  $('d-name').innerHTML = `${el.name} <span>#${el.n}</span>`;
+  const cat = $('d-cat');
+  cat.textContent = CAT_LABELS[el.cat] || el.cat;
+  cat.style.color = c;
+
+  // Facts
+  $('f-mass').textContent = el.mass;
+  if (el.den === null) { $('f-density').textContent = 'Unknown'; $('f-dunit').style.display='none'; }
+  else { $('f-density').textContent = el.den; $('f-dunit').style.display=''; }
+  $('f-melt').textContent = el.mp !== null ? el.mp : 'Unknown';
+  $('f-boil').textContent = el.bp !== null ? el.bp : 'Unknown';
+  $('f-neg').textContent = el.en !== null ? el.en.toFixed(2) : 'N/A';
+  const st = getState(el, S.temp);
+  const fst = $('f-state');
+  fst.textContent = st;
+  fst.style.color = STATE_COLORS[st];
+
+  // Description
+  $('d-desc').textContent = el.sum;
+  $('d-config').textContent = el.cfg;
+
+  // Shells
+  const shellLabels = ['K','L','M','N','O','P','Q'];
+  const shellsEl = $('d-shells');
+  shellsEl.innerHTML = '';
+  el.shells.forEach((count, i) => {
+    const div = document.createElement('div');
+    div.className = 'shell-item';
+    div.innerHTML = `<label>Shell ${i+1} (${shellLabels[i]||'?'})</label><span style="color:${c}">${count} e⁻</span>`;
+    shellsEl.appendChild(div);
+  });
+
+  // Discovery
+  $('d-disc').textContent = el.disc;
+  $('d-year').textContent = el.yr;
+
+  // Open
+  overlay.classList.add('open');
+  drawer.classList.add('open');
+
+  // Start atom viewer
+  viewer.load(el, c);
+  viewer.start();
+
+  // Resize canvas properly after drawer opens
+  setTimeout(() => { viewer.resize(); }, 50);
+}
+
+function closeDetail() {
+  overlay.classList.remove('open');
+  drawer.classList.remove('open');
+  viewer.stop();
+  S.el = null;
+}
+
+// ═══════════════════════════════════════════════
+// 2D CANVAS ATOM VIEWER
+// ═══════════════════════════════════════════════
+class AtomViewer {
+  constructor() {
+    this.canvas = $('atom-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.el = null;
+    this.color = '#3b82f6';
+    this.animId = null;
+    this.t = 0;
+    this.orbits = [];
+    this.drag = false;
+    this.rotX = 0.4;
+    this.rotY = 0;
+    this.lastMX = 0;
+    this.lastMY = 0;
+
+    // Drag to rotate
+    this.canvas.addEventListener('mousedown', e => { this.drag=true; this.lastMX=e.clientX; this.lastMY=e.clientY; });
+    window.addEventListener('mouseup', () => this.drag=false);
+    window.addEventListener('mousemove', e => {
+      if (!this.drag) return;
+      this.rotY += (e.clientX - this.lastMX) * 0.008;
+      this.rotX += (e.clientY - this.lastMY) * 0.006;
+      this.rotX = Math.max(-1.2, Math.min(1.2, this.rotX));
+      this.lastMX = e.clientX; this.lastMY = e.clientY;
+    });
+    // Touch
+    this.canvas.addEventListener('touchstart', e => { this.drag=true; this.lastMX=e.touches[0].clientX; this.lastMY=e.touches[0].clientY; e.preventDefault(); }, {passive:false});
+    window.addEventListener('touchend', () => this.drag=false);
+    window.addEventListener('touchmove', e => {
+      if (!this.drag) return;
+      this.rotY += (e.touches[0].clientX - this.lastMX) * 0.008;
+      this.rotX += (e.touches[0].clientY - this.lastMY) * 0.006;
+      this.rotX = Math.max(-1.2, Math.min(1.2, this.rotX));
+      this.lastMX = e.touches[0].clientX; this.lastMY = e.touches[0].clientY;
+    }, {passive:true});
+  }
+
+  resize() {
+    const rect = this.canvas.parentElement.getBoundingClientRect();
+    this.canvas.width = Math.floor(rect.width);
+    this.canvas.height = Math.floor(rect.height) || 280;
+  }
+
+  load(el, color) {
+    this.el = el;
+    this.color = color;
+    this.orbits = [];
+    this.t = 0;
+    this.rotX = 0.38;
+    this.rotY = 0;
+
+    el.shells.forEach((count, si) => {
+      const radius = 32 + si * 28;
+      const speed = (si === 0 ? 1.1 : 0.85 / Math.sqrt(si+1)) * (Math.random()>.5?1:-1);
+      const electrons = [];
+      for (let i = 0; i < count; i++) {
+        electrons.push({ angle: (2 * Math.PI * i) / count, speed });
+      }
+      // tilt angles for each shell (to look 3D)
+      const tiltX = (si * 0.52 + 0.1) % Math.PI;
+      const tiltZ = (si * 0.35) % Math.PI;
+      this.orbits.push({ radius, electrons, tiltX, tiltZ });
+    });
+  }
+
+  // Project 3D point to 2D with camera rotation
+  project(x, y, z) {
+    // Rotate around Y axis
+    const cosY = Math.cos(this.rotY), sinY = Math.sin(this.rotY);
+    const x1 = x * cosY - z * sinY;
+    const z1 = x * sinY + z * cosY;
+    // Rotate around X axis
+    const cosX = Math.cos(this.rotX), sinX = Math.sin(this.rotX);
+    const y2 = y * cosX - z1 * sinX;
+    const z2 = y * sinX + z1 * cosX;
+    // Simple perspective
+    const fov = 500;
+    const scale = fov / (fov + z2 + 200);
+    const cx = this.canvas.width / 2;
+    const cy = this.canvas.height / 2;
+    return { sx: cx + x1 * scale, sy: cy + y2 * scale, z: z2, sc: scale };
+  }
+
+  draw() {
+    const { canvas, ctx, t, orbits, color, el } = this;
+    if (!el) return;
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.7);
+    bg.addColorStop(0, '#0d1628');
+    bg.addColorStop(1, '#05090f');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Draw orbit rings and electrons
+    orbits.forEach((orbit, si) => {
+      const { radius, electrons, tiltX, tiltZ } = orbit;
+      const steps = 72;
+      const pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const a = (2 * Math.PI * i) / steps;
+        // Orbit plane: rotate base circle by tiltX around X and tiltZ around Z
+        let x = radius * Math.cos(a);
+        let y = radius * Math.sin(a) * Math.cos(tiltX);
+        let z = radius * Math.sin(a) * Math.sin(tiltX);
+        // Rotate by tiltZ around Z
+        const cx2 = x * Math.cos(tiltZ) - y * Math.sin(tiltZ);
+        const cy2 = x * Math.sin(tiltZ) + y * Math.cos(tiltZ);
+        pts.push(this.project(cx2, cy2, z));
+      }
+
+      // Draw ring
+      ctx.beginPath();
+      pts.forEach((p, i) => { i===0 ? ctx.moveTo(p.sx, p.sy) : ctx.lineTo(p.sx, p.sy); });
+      ctx.closePath();
+      ctx.strokeStyle = color + '44';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Draw electrons
+      electrons.forEach(e => {
+        const a = e.angle + t * e.speed;
+        let x = radius * Math.cos(a);
+        let y = radius * Math.sin(a) * Math.cos(tiltX);
+        let z = radius * Math.sin(a) * Math.sin(tiltX);
+        const cx2 = x * Math.cos(tiltZ) - y * Math.sin(tiltZ);
+        const cy2 = x * Math.sin(tiltZ) + y * Math.cos(tiltZ);
+        const p = this.project(cx2, cy2, z);
+        const r = Math.max(2.5, 4 * p.sc);
+
+        // Glow
+        const eg = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, r * 3.5);
+        eg.addColorStop(0, '#fff');
+        eg.addColorStop(0.3, '#22d3ee');
+        eg.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, r * 3.5, 0, Math.PI*2);
+        ctx.fillStyle = eg;
+        ctx.fill();
+
+        // Core
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, r, 0, Math.PI*2);
+        ctx.fillStyle = '#22d3ee';
+        ctx.fill();
+      });
+    });
+
+    // Nucleus glow
+    const pulse = 1 + 0.04 * Math.sin(t * 2.5);
+    const nR = Math.min(10 + el.n * 0.07, 20) * pulse;
+    const ng = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, nR * 2.8);
+    ng.addColorStop(0, '#ffffff');
+    ng.addColorStop(0.25, color);
+    ng.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, nR * 2.8, 0, Math.PI*2);
+    ctx.fillStyle = ng;
+    ctx.fill();
+
+    // Nucleus solid
+    const ns = ctx.createRadialGradient(W/2 - nR*0.28, H/2 - nR*0.28, 0, W/2, H/2, nR);
+    ns.addColorStop(0, '#fff');
+    ns.addColorStop(0.45, color);
+    ns.addColorStop(1, '#0d1628');
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, nR, 0, Math.PI*2);
+    ctx.fillStyle = ns;
+    ctx.fill();
+
+    // Symbol
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${Math.max(7, Math.floor(nR * 0.88))}px 'Space Grotesk', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(el.sym, W/2, H/2);
+  }
+
+  tick() {
+    this.t += 0.016;
+    if (!this.drag) this.rotY += 0.003;
+    this.draw();
+    this.animId = requestAnimationFrame(() => this.tick());
+  }
+
+  start() { this.stop(); this.tick(); }
+  stop() { if (this.animId) { cancelAnimationFrame(this.animId); this.animId = null; } }
+}
+
+const viewer = new AtomViewer();
+
+// ═══════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════
+function bindEvents() {
+  searchEl.addEventListener('input', e => { S.query = e.target.value; applyFilters(); });
+  tempEl.addEventListener('input', e => {
+    S.temp = parseInt(e.target.value);
+    updateStates();
+    if (S.el) {
+      const st = getState(S.el, S.temp);
+      const fst = $('f-state');
+      fst.textContent = st;
+      fst.style.color = STATE_COLORS[st];
+    }
+  });
+  closeBtn.addEventListener('click', closeDetail);
+  overlay.addEventListener('click', closeDetail);
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+  window.addEventListener('resize', () => { if (S.el) viewer.resize(); });
+}
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+renderFilters();
+renderGrid();
+bindEvents();
+</script>
 </body>
 </html>

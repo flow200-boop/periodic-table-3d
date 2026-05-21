@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Diagnostic Test</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Diagnostic</h1>
+  <div id="log" style="font-family:monospace;white-space:pre;"></div>
+  <script type="module">
+    const log = document.getElementById('log');
+    function write(msg) { log.textContent += msg + '\n'; }
+    
+    write('Step 1: Module loading started');
+    
+    try {
+      const mod = await import('./elements.js');
+      write('Step 2: elements.js loaded OK, count=' + mod.elements.length);
+      write('  First element: ' + JSON.stringify(mod.elements[0]).substring(0, 100));
+    } catch(e) {
+      write('ERROR loading elements.js: ' + e.message);
+    }
+    
+    try {
+      const { AtomViewer } = await import('./atom-viewer.js');
+      write('Step 3: atom-viewer.js loaded OK');
+    } catch(e) {
+      write('ERROR loading atom-viewer.js: ' + e.message + '\n  stack: ' + e.stack);
+    }
+
+    try {
+      const { default: THREE } = await import('three');
+      write('Step 4: THREE.js loaded OK - version: ' + THREE.REVISION);
+    } catch(e) {
+      write('ERROR loading THREE.js: ' + e.message);
+    }
+
+    try {
+      const appMod = await import('./app.js');
+      write('Step 5: app.js loaded OK');
+    } catch(e) {
+      write('ERROR loading app.js: ' + e.message + '\n  stack: ' + e.stack);
+    }
+  </script>
+</body>
+</html>
